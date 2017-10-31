@@ -1,0 +1,4 @@
+# R will ignore these files when building the package.
+
+# devtools
+^data-raw$

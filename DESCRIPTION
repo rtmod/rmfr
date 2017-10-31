@@ -1,12 +1,14 @@
 Package: rmfr
-Title: What the Package Does (one line, title case)
+Title: Calculate Minimal Functional Routes through Expanded Graphs
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Authors@R: person("Jason Cory", "Brunson", email = "jabrunso@vt.edu", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
-Depends: R (>= 3.3.2)
-License: What license is it under?
+Depends:
+    R (>= 3.3.2),
+    igraph (>= 1.1.2)
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
-LinkingTo: Rcpp
+#LinkingTo: Rcpp
 Imports: Rcpp
 RoxygenNote: 6.0.1
