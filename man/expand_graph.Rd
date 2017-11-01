@@ -2,20 +2,27 @@
 % Please edit documentation in R/expand-graph.r
 \name{expand_graph}
 \alias{expand_graph}
+\alias{contract_graph}
 \title{Expand a graph with dependent links to one with composite nodes}
 \usage{
 expand_graph(graph, synergy = NULL)
+
+contract_graph(graph, composite = NULL)
 }
 \arguments{
 \item{graph}{An object of class \code{"igraph"}.}
 
-\item{synergy}{Either a character vector indicating the attribute of 
-\code{graph} that encodes link synergy or a list of vectors of dependent
+\item{synergy}{Either a character string indicating the attribute of 
+\code{graph} that encodes link synergy or a list of vectors of dependent 
 link IDs. If \code{NULL}, uses the first available link attribute.}
+
+\item{composite}{Either a character string indicating the attribute of
+\code{graph} that tags compposite nodes or a vector of the composite node
+IDs. If \code{NULL}, uses the first available node attribute.}
 }
 \description{
-This function takes as input an \strong{igraph} object and information on
-*link synergy* (either as a link attribute or as a separate list of link
+This function takes as input an \strong{igraph} object and information on 
+*link synergy* (either as a link attribute or as a separate list of link 
 subsets) and returns a the *expanded graph* as an \strong{igraph} object with
 a logical node attribute \code{"composite"} indicating which nodes are 
 composite nodes. See Wang et al (2013) for definitions.
@@ -31,6 +38,12 @@ h <- expand_graph(g)
 plot(h,
      layout = layout_as_tree,
      vertex.color = ifelse(V(h)$composite, "gray", "white"))
+g_ <- contract_graph(h)
+plot(g_,
+     layout = layout_as_tree,
+     edge.color = ifelse(is.na(E(g_)$synergy), "black", E(g_)$synergy),
+     edge.width = ifelse(is.na(E(g_)$synergy), 1, 3))
+
 # cyclic example
 g <- example_cyclic
 plot(g,
@@ -41,9 +54,14 @@ h <- expand_graph(g)
 plot(h,
      layout = layout_nicely,
      vertex.color = ifelse(V(h)$composite, "gray", "white"))
+g_ <- contract_graph(h)
+plot(g_,
+     layout = layout_nicely,
+     edge.color = ifelse(is.na(E(g_)$synergy), "black", E(g_)$synergy),
+     edge.width = ifelse(is.na(E(g_)$synergy), 1, 3))
 }
 \references{
-Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional routes in 
-directed graphs with dependent links. \emph{Intl. Trans. in Op. Res.}, 20, 
-391--409.
+Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional
+routes in directed graphs with dependent links. \emph{Intl. Trans. in Op.
+Res.}, 20, 391--409.
 }
