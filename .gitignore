@@ -4,3 +4,7 @@
 # R stuff
 .RData
 .Rhistory
+
+# sandbox
+^sandbox$
+sandbox/*

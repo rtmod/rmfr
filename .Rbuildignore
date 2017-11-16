@@ -2,3 +2,6 @@
 
 # devtools
 ^data-raw$
+
+# sandbox
+^sandbox$
