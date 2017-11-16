@@ -2,5 +2,4 @@
 
 export(contract_graph)
 export(expand_graph)
-import(Rcpp)
 import(igraph)
