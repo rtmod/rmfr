@@ -5,19 +5,19 @@
 
 using namespace Rcpp;
 
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP _rmfr_rcpp_hello_world() {
+// mfrs_dag
+List mfrs_dag();
+RcppExport SEXP _rmfr_mfrs_dag() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpp_hello_world());
+    rcpp_result_gen = Rcpp::wrap(mfrs_dag());
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rmfr_rcpp_hello_world", (DL_FUNC) &_rmfr_rcpp_hello_world, 0},
+    {"_rmfr_mfrs_dag", (DL_FUNC) &_rmfr_mfrs_dag, 0},
     {NULL, NULL, 0}
 };
 
