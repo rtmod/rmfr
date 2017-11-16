@@ -4,5 +4,7 @@
 #' 
 #' @docType package
 #' @author Jason Cory Brunson
+#' @useDynLib rmfr
+#' @importFrom Rcpp sourceCpp
 #' @name rmfr
 NULL

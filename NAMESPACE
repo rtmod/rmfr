@@ -3,3 +3,5 @@
 export(contract_graph)
 export(expand_graph)
 import(igraph)
+importFrom(Rcpp,sourceCpp)
+useDynLib(rmfr)
