@@ -6,20 +6,23 @@
 using namespace Rcpp;
 
 // mfrs_dag
-List mfrs_dag(int node_count, IntegerVector composite_nodes);
-RcppExport SEXP _rmfr_mfrs_dag(SEXP node_countSEXP, SEXP composite_nodesSEXP) {
+List mfrs_dag(int node_count, IntegerMatrix link_array, IntegerVector composite_nodes, int source_node, int target_node);
+RcppExport SEXP _rmfr_mfrs_dag(SEXP node_countSEXP, SEXP link_arraySEXP, SEXP composite_nodesSEXP, SEXP source_nodeSEXP, SEXP target_nodeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type node_count(node_countSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type link_array(link_arraySEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type composite_nodes(composite_nodesSEXP);
-    rcpp_result_gen = Rcpp::wrap(mfrs_dag(node_count, composite_nodes));
+    Rcpp::traits::input_parameter< int >::type source_node(source_nodeSEXP);
+    Rcpp::traits::input_parameter< int >::type target_node(target_nodeSEXP);
+    rcpp_result_gen = Rcpp::wrap(mfrs_dag(node_count, link_array, composite_nodes, source_node, target_node));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rmfr_mfrs_dag", (DL_FUNC) &_rmfr_mfrs_dag, 2},
+    {"_rmfr_mfrs_dag", (DL_FUNC) &_rmfr_mfrs_dag, 5},
     {NULL, NULL, 0}
 };
 

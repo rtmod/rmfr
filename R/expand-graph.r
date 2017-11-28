@@ -15,7 +15,7 @@
 #' @param synergy Either a character string indicating the attribute of 
 #'   \code{graph} that encodes link synergy or a list of vectors of dependent 
 #'   link IDs. If \code{NULL}, uses the first available link attribute.
-#' @example inst/examples/examples.r
+#' @example inst/examples/ex-expand-contract.r
 #' @export
 expand_graph <- function(graph, synergy = NULL) {
   

@@ -6,5 +6,7 @@ using namespace Rcpp;
 typedef struct node_id {int id;} node_id;
 typedef struct link_id {int id;} link_id;
 
-typedef std::vector<link_id> route;
+//typedef std::vector<link_id> route;
+//typedef std::set<route> route_set;
+typedef std::vector<int> route;
 typedef std::set<route> route_set;
