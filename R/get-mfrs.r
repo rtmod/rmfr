@@ -41,7 +41,8 @@ get_mfrs <- function(
     node_count = vcount(graph),
     link_array = as_edgelist(graph, names = FALSE),
     composite_nodes = which(vertex_attr(graph, "composite")),
-    source_node = source, target_node = target,
+    source_node = as.integer(V(graph)[source]),
+    target_node = as.integer(V(graph)[target]),
     silent = silent
   )
 }
