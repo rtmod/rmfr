@@ -6,9 +6,7 @@
 #' a logical node attribute \code{"composite"} indicating which nodes are 
 #' composite nodes. See Wang et al (2013) for definitions.
 #' 
-#' @references Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional
-#' routes in directed graphs with dependent links. \emph{Intl. Trans. in Op.
-#' Res.}, 20, 391--409.
+#' @template Wang2013
 #' 
 #' @import igraph
 #' @param graph An object of class \code{"igraph"}.

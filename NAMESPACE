@@ -2,6 +2,7 @@
 
 export(contract_graph)
 export(expand_graph)
+export(get_mfrs)
 import(igraph)
 importFrom(Rcpp,sourceCpp)
 useDynLib(rmfr)

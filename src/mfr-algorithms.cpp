@@ -21,7 +21,7 @@ void print_route_set(route_set rs, IntegerMatrix la) {
 // Algorithm 1 (Wang et al, 2013)
 // A depth-first search algorithm for enumerating MFRs in DAGs
 // [[Rcpp::export]]
-List mfrs_dag(int node_count,
+List mfrs_dfs(int node_count,
               IntegerMatrix link_array,
               IntegerVector composite_nodes,
               int source_node, int target_node,

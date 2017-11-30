@@ -61,7 +61,7 @@ plot(g_,
      edge.width = ifelse(is.na(E(g_)$synergy), 1, 3))
 }
 \references{
-Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional
-routes in directed graphs with dependent links. \emph{Intl. Trans. in Op.
-Res.}, 20, 391--409.
+Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional routes in 
+directed graphs with dependent links. \emph{Intl. Trans. in Op. Res.}, 20, 
+391--409.
 }

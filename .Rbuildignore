@@ -3,5 +3,8 @@
 # devtools
 ^data-raw$
 
+# roxygen
+^man-roxygen$
+
 # sandbox
 ^sandbox$
