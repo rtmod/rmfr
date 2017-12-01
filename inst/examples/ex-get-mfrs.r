@@ -1,18 +1,7 @@
 # acyclic example
 g <- example_acyclic
+g_mfrs <- get_mfrs(g, expand = TRUE, source = "I", target = "O")
 h <- expand_graph(g)
-plot(h,
-     layout = layout_as_tree,
-     vertex.color = ifelse(V(h)$composite, "gray", "white"))
-\dontrun{
-h_mfrs <- rmfr:::mfrs_dfs(
-  node_count = vcount(h),
-  link_array = as_edgelist(h, names = FALSE),
-  composite_nodes = which(vertex_attr(h, "composite")),
-  source_node = 1,
-  target_node = 10
-)
-}
 h_mfrs <- get_mfrs(h, source = 1, target = 10)
 
 par(mfrow = c(2, 3))
