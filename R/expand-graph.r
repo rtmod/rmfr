@@ -45,6 +45,9 @@ expand_graph <- function(graph, synergy = NULL) {
     synergy <- "synergy"
   }
   
+  # initialize link permutation
+  link_permutation <- 1:ecount(graph)
+  
   # ensure that synergy is only among links to the same target node
   synergy_matrix <- cbind(
     ends(graph, E(graph), names = FALSE),
@@ -55,12 +58,23 @@ expand_graph <- function(graph, synergy = NULL) {
   if (any(duplicated(unique(synergy_matrix[, 2:3])[, 2]))) {
     stop("Synergy between links to different target nodes.")
   }
+  synergies <- sort(setdiff(unique(edge_attr(graph, synergy)), NA))
+  
+  # complete link permutation
+  nonsyn_shift_down <- cumsum(!is.na(edge_attr(graph, synergy)))
+  link_permutation[is.na(edge_attr(graph, synergy))] <-
+    (link_permutation - nonsyn_shift_down)[is.na(edge_attr(graph, synergy))]
+  max_id <- ecount(graph) - length(which(!is.na(edge_attr(graph, synergy))))
+  for (i in synergies) {
+    wh <- which(edge_attr(graph, synergy) == i)
+    link_permutation[wh] <- max_id + seq_along(wh)
+    max_id <- max_id + length(wh)
+  }
   
   # introdue a composite node attribute
   n_nodes <- vcount(graph)
   V(graph)$composite <- FALSE
   # add composite nodes
-  synergies <- setdiff(unique(edge_attr(graph, synergy)), NA)
   graph <- add_vertices(graph, length(synergies))
   V(graph)$composite[is.na(V(graph)$composite)] <- TRUE
   V(graph)$name[V(graph)$composite] <- paste0("c", 1:length(synergies))
@@ -75,6 +89,9 @@ expand_graph <- function(graph, synergy = NULL) {
   # remove the dependent links
   graph <- delete_edges(graph, which(!is.na(edge_attr(graph, synergy))))
   graph <- delete_edge_attr(graph, synergy)
+  
+  # add link ID permutation as attribute
+  graph <- set_graph_attr(graph, "link_permutation", link_permutation)
   
   graph
 }

@@ -8,28 +8,36 @@
 #'   
 #' @import igraph
 #' @param graph An object of class \code{"igraph"}.
+#' @param expand Whether to expand \code{graph} before finding the MFRs and, if 
+#'   so, to return the list of MFRs in terms of the node and link IDs of
+#'   \code{graph} rather than of its expanded graph.
 #' @param source,target Nodes of \code{graph}, as integer indices or character 
 #'   names.
 #' @param algorithm An algorithm from Wang et al (2013) from among the 
-#'   following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
-#'   (iterative integer linear programming; Algorithm 2), or \code{"sgg"}
-#'   (subgraph-growing; Algorithm 3). \strong{Currently only Algorithm 1 is
+#'   following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"} 
+#'   (iterative integer linear programming; Algorithm 2), or \code{"sgg"} 
+#'   (subgraph-growing; Algorithm 3). \strong{Currently only Algorithm 1 is 
 #'   implemented.}
 #' @param silent Whether to print updates on the progress of the algorithm 
 #'   (deprecated).
-#' @param output Whether to return the list of MFRs as \code{"sequences"} of
+#' @param output Whether to return the list of MFRs as \code{"sequences"} of 
 #'   link IDs or as \code{"matrices"} of head and tail node IDs.
 #' @example inst/examples/ex-get-mfrs.r
 #' @seealso expand_graph
 #' @export
 get_mfrs <- function(
-  graph,
+  graph, expand = FALSE,
   source, target,
   algorithm = NULL,
   silent = TRUE,
   output = "sequences"
 ) {
   output <- match.arg(output, c("sequences", "matrices"))
+  
+  if (expand) {
+    graph_orig <- graph
+    graph <- expand_graph(graph)
+  }
   
   graph_is_dag <- is_dag(graph)
   if (is.null(algorithm)) {
@@ -52,8 +60,15 @@ get_mfrs <- function(
   # THIS SHOULD BE DONE IN THE C++ SOURCE
   stopifnot(mfrs$mfr_count == length(mfrs$mfr_set))
   mfrs <- mfrs$mfr_set
+  mfrs <- mfrs %>%
+    lapply(function(x) x + 1)
   
-  mfrs <- mfrs %>% lapply(function(x) x + 1)
+  if (expand) {
+    mfrs <- mfrs %>%
+      lapply(match, table = graph_attr(graph, "link_permutation")) %>%
+      lapply(function(x) x[!is.na(x)])
+    graph <- graph_orig
+  }
   
   if (output == "matrices") {
     el <- as_edgelist(graph, names = FALSE)

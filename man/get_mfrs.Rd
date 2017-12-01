@@ -4,25 +4,29 @@
 \alias{get_mfrs}
 \title{Recover minimal functional routes}
 \usage{
-get_mfrs(graph, source, target, algorithm = NULL, silent = TRUE,
-  output = "sequences")
+get_mfrs(graph, expand = FALSE, source, target, algorithm = NULL,
+  silent = TRUE, output = "sequences")
 }
 \arguments{
 \item{graph}{An object of class \code{"igraph"}.}
+
+\item{expand}{Whether to expand \code{graph} before finding the MFRs and, if 
+so, to return the list of MFRs in terms of the node and link IDs of
+\code{graph} rather than of its expanded graph.}
 
 \item{source, target}{Nodes of \code{graph}, as integer indices or character 
 names.}
 
 \item{algorithm}{An algorithm from Wang et al (2013) from among the 
-following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
-(iterative integer linear programming; Algorithm 2), or \code{"sgg"}
-(subgraph-growing; Algorithm 3). \strong{Currently only Algorithm 1 is
+following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"} 
+(iterative integer linear programming; Algorithm 2), or \code{"sgg"} 
+(subgraph-growing; Algorithm 3). \strong{Currently only Algorithm 1 is 
 implemented.}}
 
 \item{silent}{Whether to print updates on the progress of the algorithm 
 (deprecated).}
 
-\item{output}{Whether to return the list of MFRs as \code{"sequences"} of
+\item{output}{Whether to return the list of MFRs as \code{"sequences"} of 
 link IDs or as \code{"matrices"} of head and tail node IDs.}
 }
 \description{
