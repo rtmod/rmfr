@@ -21,11 +21,21 @@ link IDs. If \code{NULL}, uses the first available link attribute.}
 IDs. If \code{NULL}, uses the first available node attribute.}
 }
 \description{
-This function takes as input an \strong{igraph} object and information on 
-*link synergy* (either as a link attribute or as a separate list of link 
-subsets) and returns a the *expanded graph* as an \strong{igraph} object with
-a logical node attribute \code{"composite"} indicating which nodes are 
-composite nodes. See Wang et al (2013) for definitions.
+The function \code{expand_graph()} takes as input an \strong{igraph} object 
+and information on *link synergy* (either as a link attribute or as a 
+separate list of link subsets) and returns the *expanded graph* as an 
+\strong{igraph} object with a logical node attribute \code{"composite"} 
+indicating which nodes are composite nodes.
+}
+\details{
+The function \code{contract_graph()} takes as input an \strong{igraph} object
+and information on *node composition* (either as a node attribute or as a 
+separate vector of node IDs) and returns the *contracted graph* as an 
+\strong{igraph} object with a logical link attribute \code{"synergy"} 
+indicating which subsets of links are synergistic.
+
+Only composite nodes are added or deleted, so node IDs are preserved. 
+However, link IDs are not.
 }
 \examples{
 # acyclic example

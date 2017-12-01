@@ -4,7 +4,8 @@
 \alias{get_mfrs}
 \title{Recover minimal functional routes}
 \usage{
-get_mfrs(graph, source, target, algorithm = NULL, silent = TRUE)
+get_mfrs(graph, source, target, algorithm = NULL, silent = TRUE,
+  output = "sequences")
 }
 \arguments{
 \item{graph}{An object of class \code{"igraph"}.}
@@ -12,19 +13,21 @@ get_mfrs(graph, source, target, algorithm = NULL, silent = TRUE)
 \item{source, target}{Nodes of \code{graph}, as integer indices or character 
 names.}
 
-\item{algorithm}{An algorithm from Wang et al (2013) from among the
-following:
-\code{"dfs"} (depth-first search; Algorithm 1),
-\code{"ilp"} (iterative integer linear programming; Algorithm 2), or
-\code{"sgg"} (subgraph-growing; Algorithm 3).
-\strong{Currently only Algorithm 1 is implemented.}}
+\item{algorithm}{An algorithm from Wang et al (2013) from among the 
+following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
+(iterative integer linear programming; Algorithm 2), or \code{"sgg"}
+(subgraph-growing; Algorithm 3). \strong{Currently only Algorithm 1 is
+implemented.}}
 
-\item{silent}{Whether to print updates on the progress of the algorithm
+\item{silent}{Whether to print updates on the progress of the algorithm 
 (deprecated).}
+
+\item{output}{Whether to return the list of MFRs as \code{"sequences"} of
+link IDs or as \code{"matrices"} of head and tail node IDs.}
 }
 \description{
-This function takes a graph \code{graph} (understood to be expanded if
-necessary) with designated \code{source} and \code{target} nodes and finds
+This function takes a graph \code{graph} (understood to be expanded if 
+necessary) with designated \code{source} and \code{target} nodes and finds 
 the minimal functional routes (MFRs) from \code{source} to \code{target}.
 }
 \examples{
@@ -46,9 +49,9 @@ h_mfrs <- rmfr:::mfrs_dfs(
 h_mfrs <- get_mfrs(h, source = 1, target = 10)
 
 par(mfrow = c(2, 3))
-for (i in 1:h_mfrs$mfr_count) {
+for (i in seq_along(h_mfrs)) {
   h <- set_edge_attr(h, "MFR",
-                     value = (as.numeric(E(h)) - 1) \%in\% h_mfrs$mfr_set[[i]])
+                     value = (as.numeric(E(h)) - 1) \%in\% h_mfrs[[i]])
   plot(h,
        layout = layout_as_tree,
        vertex.color = ifelse(V(h)$composite, "gray", "white"),
@@ -60,9 +63,9 @@ par(mfrow = c(1, 1))
 g_ <- contract_graph(h)
 
 par(mfrow = c(2, 3))
-for (i in 1:h_mfrs$mfr_count) {
+for (i in seq_along(h_mfrs)) {
   g_ <- set_edge_attr(g_, "MFR",
-                      value = (as.numeric(E(g_)) - 1) \%in\% h_mfrs$mfr_set[[i]])
+                      value = (as.numeric(E(g_)) - 1) \%in\% h_mfrs[[i]])
   plot(g_,
        layout = layout_as_tree,
        vertex.color = ifelse(V(g_)$composite, "gray", "white"),
