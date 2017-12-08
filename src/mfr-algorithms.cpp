@@ -366,6 +366,5 @@ List mfrs_dfs(int node_count,
 
 // Algorithm 2 (Wang et al, 2013)
 
-
 // Algorithm 3 (Wang et al, 2013)
-
+// A subgraph-growing algorithm for enumerating MFRs in DAGs
