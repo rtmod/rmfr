@@ -31,10 +31,6 @@ List mfrs_dfs(int node_count,
   
   // sort 'composite_nodes' and ensure that it has no duplicates
   std::sort(composite_nodes.begin(), composite_nodes.end());
-  //auto af = std::adjacent_find(composite_nodes.begin(), composite_nodes.end());
-  //if (af != composite_nodes.end()) {
-  //  stop("Vector of composite nodes contains duplicates.");
-  //}
   // ensure that 'link_array' has two columns (and node index entries?)
   if (link_array.ncol() != 2) {
     stop("Matrix of links does not have two columns.");
@@ -159,7 +155,8 @@ List mfrs_dfs(int node_count,
       u_pmfrs_e.insert(r);
     }
     if (!silent) {
-      //Rcout << "node " << u << " route set with link " << e << " concatenated: ";
+      //Rcout << "node " << u << " route set " <<
+      //  "with link " << e << " concatenated: ";
       //print_route_set(u_pmfrs_e, link_array);
     }
     
