@@ -365,3 +365,48 @@ List mfrs_dfs(int node_count,
 
 // Algorithm 3 (Wang et al, 2013)
 // A subgraph-growing algorithm for enumerating MFRs in DAGs
+List mfrs_sgg(int node_count,
+              IntegerMatrix inv_adj,
+              LogicalVector node_composition,
+              int source_node, int target_node,
+              bool silent = true) {
+  
+  // setup
+  
+  // pointer to the current partial MFR
+  // note: enumerates from 0 rather than 1
+  int pointer = 0;
+  // number of MFRs
+  int n = 1;
+  // indicator that current partial MFR is complete
+  bool flag = false;
+  // vector of MFRs
+  route_vec mfr;
+  // node at which to grow current partial MFR
+  std::vector<int> tag;
+  // initialize 'mfr' and 'tag' with empty partial MFR and target node
+  route r;
+  mfr.push_back(r);
+  tag.push_back(0);
+  //route r;
+  //for (int i = 0; i < node_count; i++) {
+  //  route_vec.push_back(r);
+  //  tag.push_back(0);
+  //}
+  
+  // grow subgraphs
+  
+  while (pointer < n) {
+    
+    flag = false;
+    c_mfr = mfr[pointer];
+    c_row = tag[pointer];
+    
+    while (!flag) {
+      
+      c_node = c_mfr;
+      
+    }
+    
+  }
+}

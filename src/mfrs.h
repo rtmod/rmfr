@@ -10,3 +10,4 @@ typedef struct link_id {int id;} link_id;
 //typedef std::set<route> route_set;
 typedef std::vector<int> route;
 typedef std::set<route> route_set;
+typedef std::vector<route> route_vec;
