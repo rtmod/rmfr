@@ -49,14 +49,7 @@ get_mfrs <- function(
   }
   mfrs_fun <- get(paste0("mfrs_", algorithm))
   
-  mfrs <- mfrs_fun(
-    node_count = vcount(graph),
-    link_array = as_edgelist(graph, names = FALSE),
-    composite_nodes = which(vertex_attr(graph, "composite")),
-    source_node = as.integer(V(graph)[source]),
-    target_node = as.integer(V(graph)[target]),
-    silent = silent
-  )
+  mfrs <- mfrs_fun(graph, source, target, silent)
   # THIS SHOULD BE DONE IN THE C++ SOURCE
   stopifnot(mfrs$mfr_count == length(mfrs$mfr_set))
   mfrs <- mfrs$mfr_set
@@ -81,3 +74,93 @@ get_mfrs <- function(
 }
 
 get_minimal_functional_routes <- get_mfrs
+
+mfrs_dfs <- function(graph, source, target, silent) {
+  mfrs_dfs_C(
+    node_count = vcount(graph),
+    link_array = as_edgelist(graph, names = FALSE),
+    composite_nodes = which(vertex_attr(graph, "composite")),
+    source_node = as.integer(V(graph)[source]),
+    target_node = as.integer(V(graph)[target]),
+    silent = silent
+  )
+}
+
+# rough implementation in R, to be later implemented in C++
+mfrs_sgg <- function(graph, source, target, silent) {
+  
+  # setup
+  source <- as.numeric(V(graph)[source])
+  target <- as.numeric(V(graph)[target])
+  composite_nodes = which(vertex_attr(graph, "composite"))
+  graph <- delete_vertex_attr(graph, "name")
+  net <- list(
+    as.numeric(V(graph)),
+    unname(lapply(as_adj_list(graph, "in"), as.numeric))
+  )
+  
+  # initialization
+  pointer <- 1
+  n_pmfrs <- 1
+  flag <- FALSE
+  pmfrs <- list(net[[1]][target], net[[2]][target])
+  tag <- c(1)
+  
+  # while some partial MFRs remain
+  while (pointer <= n_pmfrs) {
+    
+    flag <- FALSE
+    cmfr <- list(pmfrs[[1]][pointer], pmfrs[[2]][pointer])
+    ctag <- tag[pointer]
+    
+    # while the current MFR is incomplete
+    while (flag == FALSE) {
+      
+      cnode <- cmfr[[1]][[ctag]]
+      cpred <- cmfr[[2]][[ctag]]
+      
+      # if no predecessors remain
+      if (length(cpred) == 0) {
+        
+        # if the current node is the last node of the current partial MFR
+        if (cnode == cmfr[[1]][length(cmfr[[1]])]) {
+          flag <- TRUE
+        } else {
+          ctag <- ctag + 1
+        }
+        
+      } else {
+        
+        # if the current node is an original node
+        if (!(cnode %in% composite_nodes)) {
+          
+          m <- length(cpred)
+          cmfr[[2]][[ctag]] <- cpred[1]
+          
+          i <- 1
+          while (i < m) {
+            
+            temp1 <- cmfr
+            temp1[[2]][[ctag]] <- cpred[i + 1]
+            pmfrs[[1]][[n_pmfrs + i]] <- temp1[[1]]
+            pmfrs[[2]][[n_pmfrs + i]] <- temp1[[2]]
+            tag[n_pmfrs + i] <- ctag
+            
+          }
+          n_pmfrs <- n_pmfrs + m - 1
+          
+        }
+        
+        cpred <- cmfr[[2]][[ctag]]
+        
+        # RESUME
+        
+      }
+      
+    }
+    
+  }
+  
+  # result
+  pmfrs
+}
