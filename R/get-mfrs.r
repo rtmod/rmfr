@@ -248,6 +248,7 @@ mfrs_sgg <- function(graph, source, target, silent) {
           }
           n_mfrs <- n_mfrs + m - 1
           
+          print(mfrs)
         }
         
         # SHOULD ONLY BE NECESSARY IF THE CURRENT NODE IS ORIGINAL
@@ -292,7 +293,14 @@ mfrs_sgg <- function(graph, source, target, silent) {
 }
 
 # MINIMAL TOY EXAMPLE
-graph <- graph(c( 1,2, 1,3, 2,4, 3,4, 4,5))
-graph <- set_vertex_attr(graph, "composite", value = c(F,F,F,T,F))
+graph <- graph(c( 1,2, 2,3, 1,3, 3,4 ))
+plot(graph)
+graph <- set_vertex_attr(graph, "composite", value = c(F,F,F,F))
+source <- 1
+target <- 4
+
+graph <- graph(c( 1,2, 1,3, 2,4, 3,4, 4,5, 3,6, 6,5 ))
+plot(graph)
+graph <- set_vertex_attr(graph, "composite", value = c(F,F,F,T,F,F))
 source <- 1
 target <- 5
