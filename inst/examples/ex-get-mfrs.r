@@ -54,3 +54,29 @@ plot(
   edge.color = c("black", "red", "blue")[unlist(edge_attr(h, "MFR")) + 1],
   edge.width = ifelse(edge_attr(h, "MFR"), 3, 1)
 )
+
+# subgraph-growing algorithm: toy examples
+graph <- graph(c( 1,2, 2,3, 1,3, 3,4 ))
+plot(graph, edge.label = E(graph))
+graph <- set_vertex_attr(graph, "composite", value = FALSE)
+get_mfrs(graph, source = 1, target = 4, algorithm = "sgg")
+graph <- graph(c( 1,2, 1,3, 2,4, 3,4, 4,5, 3,6, 6,5 ))
+plot(graph, edge.label = E(graph))
+graph <- set_vertex_attr(graph, "composite", value = as.logical(c(0,0,0,1,0,0)))
+get_mfrs(graph, source = 1, target = 5, algorithm = "sgg")
+
+# subgraph-growing algorithm: acyclic example
+acyclic_expansion <- expand_graph(example_acyclic)
+plot(acyclic_expansion,
+     layout = layout_as_tree,
+     vertex.color = ifelse(V(g)$composite, "gray", "white"),
+     edge.label = E(acyclic_expansion))
+get_mfrs(acyclic_expansion, source = "I", target = "O", algorithm = "sgg")
+
+# subgraph-growing algorithm: cyclic example
+cyclic_expansion <- expand_graph(example_cyclic)
+plot(cyclic_expansion,
+     layout = layout_with_fr,
+     vertex.color = ifelse(V(g)$composite, "gray", "white"),
+     edge.label = E(cyclic_expansion))
+get_mfrs(cyclic_expansion, source = "t", target = "t", algorithm = "sgg")

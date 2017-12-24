@@ -50,11 +50,13 @@ get_mfrs <- function(
   mfrs_fun <- get(paste0("mfrs_", algorithm))
   
   mfrs <- mfrs_fun(graph, source, target, silent)
-  # THIS SHOULD BE DONE IN THE C++ SOURCE
-  stopifnot(mfrs$mfr_count == length(mfrs$mfr_set))
-  mfrs <- mfrs$mfr_set
-  mfrs <- mfrs %>%
-    lapply(function(x) x + 1)
+  if (algorithm == "dfs") {
+    # THIS SHOULD BE DONE IN THE C++ SOURCE
+    stopifnot(mfrs$mfr_count == length(mfrs$mfr_set))
+    mfrs <- mfrs$mfr_set
+    mfrs <- mfrs %>%
+      lapply(function(x) x + 1)
+  }
   
   if (expand) {
     mfrs <- mfrs %>%
@@ -93,105 +95,9 @@ mfrs_sgg <- function(graph, source, target, silent) {
   source <- as.numeric(V(graph)[source])
   target <- as.numeric(V(graph)[target])
   composite_nodes = which(vertex_attr(graph, "composite"))
-  graph <- delete_vertex_attr(graph, "name")
-  net <- list(
-    as.numeric(V(graph)),
-    unname(lapply(as_adj_list(graph, "in"), as.numeric))
-  )
-  
-  # initialization
-  pointer <- 1
-  n_mfrs <- 1
-  flag <- FALSE
-  mfrs <- list(list(net[[1]][target], net[[2]][target]))
-  tag <- c(1)
-  
-  # while some partial MFRs remain
-  while (pointer <= n_mfrs) {
-    
-    flag <- FALSE
-    cmfr <- mfrs[[pointer]]
-    ctag <- tag[pointer]
-    
-    # while the current MFR is incomplete
-    while (flag == FALSE) {
-      
-      cnode <- cmfr[[1]][[ctag]]
-      cpred <- cmfr[[2]][[ctag]]
-      
-      # if no predecessors remain
-      if (length(cpred) == 0) {
-        
-        # if the current node is the last node of the current partial MFR
-        if (ctag == length(cmfr[[1]])) {
-          flag <- TRUE
-        } else {
-          ctag <- ctag + 1
-        }
-        
-      } else {
-        
-        # if the current node is an original node
-        if (!(cnode %in% composite_nodes)) {
-          
-          m <- length(cpred)
-          cmfr[[2]][[ctag]] <- cpred[1]
-          
-          i <- 1
-          while (i < m) {
-            temp1 <- cmfr
-            temp1[[2]][[ctag]] <- cpred[i + 1]
-            mfrs[[n_mfrs + i]] <- temp1
-            tag[n_mfrs + i] <- ctag
-            i <- i + 1
-          }
-          n_mfrs <- n_mfrs + m - 1
-          
-        }
-        
-        cpred <- cmfr[[2]][[ctag]]
-        
-        if (all(cpred %in% cmfr[[1]])) {
-          
-          if (ctag == length(cmfr[[1]])) {
-            flag <- TRUE
-          } else {
-            ctag <- ctag + 1
-          }
-          
-        } else {
-          
-          for (v in cpred) {
-            if (v %in% cmfr[[1]]) next
-            i <- which(net[[1]] == v)
-            temp2 <- list(net[[1]][i], net[[2]][i])
-            cmfr[[1]] <- c(cmfr[[1]], temp2[[1]])
-            cmfr[[2]] <- c(cmfr[[2]], temp2[[2]])
-            ctag <- ctag + 1
-          }
-          
-        }
-        
-      }
-      
-    }
-    
-    pointer <- pointer + 1
-    
+  if ("name" %in% vertex_attr_names(graph)) {
+    graph <- delete_vertex_attr(graph, "name")
   }
-  
-  # result
-  mfrs
-}
-
-# adapted implementation in R
-mfrs_sgg <- function(graph, source, target, silent) {
-  
-  # setup
-  source <- as.numeric(V(graph)[source])
-  target <- as.numeric(V(graph)[target])
-  composite_nodes = which(vertex_attr(graph, "composite"))
-  graph <- delete_vertex_attr(graph, "name")
   net <- list(
     as.numeric(V(graph)),
     unname(lapply(as_adj_list(graph, "in"), as.numeric))
@@ -236,22 +142,32 @@ mfrs_sgg <- function(graph, source, target, silent) {
         if (!(cnode %in% composite_nodes)) {
           
           m <- length(cpred)
-          #cmfr[[2]][[ctag]] <- cpred[1]
+          cmfr[[2]][[ctag]] <- cpred[1]
           
           i <- 0
+          dmfrs <- list() ###
           while (i < m) {
             temp1 <- cmfr
             temp1[[2]][[ctag]] <- cpred[i + 1]
-            mfrs[[n_mfrs + i]] <- temp1
-            tag[n_mfrs + i] <- ctag
+            #mfrs[[n_mfrs + i]] <- temp1 ### SHOULD THIS BE 'pointer'?
+            dmfrs[[i + 1]] <- temp1 ###
+            #tag[n_mfrs + i] <- ctag
             i <- i + 1
           }
+          mfrs <- c(
+            if (pointer > 1) mfrs[1:(pointer - 1)] else NULL,
+            dmfrs,
+            if (n_mfrs > pointer) mfrs[(pointer + 1):n_mfrs] else NULL
+          ) ###
+          tag <- c(
+            if (pointer > 1) tag[1:(pointer - 1)] else NULL,
+            rep(ctag, m),
+            if (n_mfrs > pointer) tag[(pointer + 1):n_mfrs] else NULL
+          ) ###
           n_mfrs <- n_mfrs + m - 1
           
-          print(mfrs)
         }
         
-        # SHOULD ONLY BE NECESSARY IF THE CURRENT NODE IS ORIGINAL
         cpred <- cmfr[[2]][[ctag]]
         
         # if all current predecessors are in the current partial MFR,
@@ -284,23 +200,16 @@ mfrs_sgg <- function(graph, source, target, silent) {
       
     }
     
+    mfrs[[pointer]] <- cmfr ###
     pointer <- pointer + 1
     
   }
   
   # result
-  mfrs
+  lapply(mfrs, function(m) {
+    sort(unlist(mapply(function(v0, v1s) {
+      if (length(v1s) == 0) return(NULL)
+      get.edge.ids(graph, rbind(v1s, v0))
+    }, m[[1]], m[[2]], SIMPLIFY = FALSE)))
+  })
 }
-
-# MINIMAL TOY EXAMPLE
-graph <- graph(c( 1,2, 2,3, 1,3, 3,4 ))
-plot(graph)
-graph <- set_vertex_attr(graph, "composite", value = c(F,F,F,F))
-source <- 1
-target <- 4
-
-graph <- graph(c( 1,2, 1,3, 2,4, 3,4, 4,5, 3,6, 6,5 ))
-plot(graph)
-graph <- set_vertex_attr(graph, "composite", value = c(F,F,F,T,F,F))
-source <- 1
-target <- 5
