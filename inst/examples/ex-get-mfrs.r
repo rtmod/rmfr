@@ -79,4 +79,4 @@ plot(cyclic_expansion,
      layout = layout_with_fr,
      vertex.color = ifelse(V(g)$composite, "gray", "white"),
      edge.label = E(cyclic_expansion))
-get_mfrs(cyclic_expansion, source = "t", target = "t", algorithm = "sgg")
+get_mfrs(cyclic_expansion, source = "s", target = "t", algorithm = "sgg")

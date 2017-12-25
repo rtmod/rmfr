@@ -205,7 +205,14 @@ mfrs_sgg <- function(graph, source, target, silent) {
     
   }
   
-  # result
+  # require source node
+  print(mfrs)
+  mfrs <- mfrs[which(!is.na(sapply(mfrs, function(mfr) {
+    match(source, mfr[[1]])
+  })))]
+  print(mfrs)
+  
+  # result as a list of edge sequences
   lapply(mfrs, function(m) {
     sort(unlist(mapply(function(v0, v1s) {
       if (length(v1s) == 0) return(NULL)
