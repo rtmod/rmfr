@@ -11,3 +11,5 @@ typedef struct link_id {int id;} link_id;
 typedef std::vector<int> route;
 typedef std::set<route> route_set;
 typedef std::vector<route> route_vec;
+
+typedef std::map<int, std::vector<int> > invadj;

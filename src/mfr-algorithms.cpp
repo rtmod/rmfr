@@ -365,8 +365,9 @@ List mfrs_dfs_C(int node_count,
 
 // Algorithm 3 (Wang et al, 2013)
 // A subgraph-growing algorithm for enumerating MFRs in DAGs
+// Note: throughout, all index sets begin at 0
 List mfrs_sgg(int node_count,
-              IntegerMatrix inv_adj,
+              List invadj_list, // "Net"
               LogicalVector node_composition,
               int source_node, int target_node,
               bool silent = true) {
@@ -374,20 +375,21 @@ List mfrs_sgg(int node_count,
   // setup
   
   // pointer to the current partial MFR
-  // note: enumerates from 0 rather than 1
   int pointer = 0;
   // number of MFRs
-  int n = 1;
+  int mfr_count = 1;
   // indicator that current partial MFR is complete
   bool flag = false;
   // vector of MFRs
-  route_vec mfr;
+  std::vector<invadj> mfrs;
   // node at which to grow current partial MFR
-  std::vector<int> tag;
-  // initialize 'mfr' and 'tag' with empty partial MFR and target node
-  route r;
-  mfr.push_back(r);
-  tag.push_back(0);
+  std::vector<int> tags;
+  // initialize 'mfrs' and 'tags' with empty partial MFR and target node
+  
+  invadj mfr;
+  mfr.insert(invadj::value_type(target_node, invadj_list[target_node]));
+  mfrs.push_back(mfr);
+  tags.push_back(1);
   //route r;
   //for (int i = 0; i < node_count; i++) {
   //  route_vec.push_back(r);
@@ -396,17 +398,23 @@ List mfrs_sgg(int node_count,
   
   // grow subgraphs
   
-  while (pointer < n) {
+  while (pointer < mfr_count) {
     
     flag = false;
-    c_mfr = mfr[pointer];
-    c_row = tag[pointer];
+    invadj c_mfr = mfrs[pointer];
+    int c_row = tags[pointer];
     
     while (!flag) {
       
-      c_node = c_mfr;
+      //int c_node = c_mfr;
       
     }
     
   }
+  
+  // return list
+  return List::create(
+    _["mfr_count"] = mfr_count,
+    _["mfr_set"] = mfrs
+  );
 }
