@@ -51,11 +51,11 @@ get_mfrs <- function(
   mfrs_fun <- get(paste0("mfrs_", algorithm))
   
   mfrs <- mfrs_fun(graph, source, target, silent)
+  
+  # check and correction for C++ implementations
   if (algorithm == "dfs") {
-    # THIS SHOULD BE DONE IN THE C++ SOURCE
     stopifnot(mfrs$mfr_count == length(mfrs$mfr_set))
-    mfrs <- mfrs$mfr_set
-    mfrs <- mfrs %>%
+    mfrs <- mfrs$mfr_set %>%
       lapply(function(x) x + 1)
   }
   
