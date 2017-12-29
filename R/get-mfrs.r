@@ -1,23 +1,24 @@
 #' Recover minimal functional routes
 #' 
-#' This function takes a graph \code{graph} (understood to be expanded if 
-#' necessary) with designated \code{source} and \code{target} nodes and finds 
-#' the minimal functional routes (MFRs) from \code{source} to \code{target}.
+#' This function takes a graph \code{graph} (by default assumed to be expanded)
+#' with designated \code{source} and \code{target} nodes and finds the minimal
+#' functional routes (MFRs) from \code{source} to \code{target}.
 #' 
 #' @template Wang2013
 #'   
+
 #' @import igraph
 #' @param graph An object of class \code{"igraph"}.
 #' @param expand Whether to expand \code{graph} before finding the MFRs and, if 
 #'   so, to return the list of MFRs in terms of the node and link IDs of
 #'   \code{graph} rather than of its expanded graph.
-#' @param source,target Nodes of \code{graph}, as integer indices or character 
-#'   names.
+#' @param source,target Nodes of \code{graph}, as \strong{igraph} vertices,
+#'   integer indices, or character names.
 #' @param algorithm An algorithm from Wang et al (2013) from among the 
 #'   following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"} 
 #'   (iterative integer linear programming; Algorithm 2), or \code{"sgg"} 
 #'   (subgraph-growing; Algorithm 3). \strong{Currently only Algorithm 1 is 
-#'   implemented.}
+#'   implemented in C++, and Algorithm 2 is implemented in R.}
 #' @param silent Whether to print updates on the progress of the algorithm 
 #'   (deprecated).
 #' @param output Whether to return the list of MFRs as \code{"sequences"} of 
