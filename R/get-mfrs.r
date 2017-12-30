@@ -155,6 +155,7 @@ mfrs_sgg <- function(graph, source, target, silent) {
             #tag[n_mfrs + i] <- ctag
             i <- i + 1
           }
+          # instert new MFRs at the location of the current one
           mfrs <- c(
             if (pointer > 1) mfrs[1:(pointer - 1)] else NULL,
             dmfrs,

@@ -381,14 +381,18 @@ List mfrs_sgg(int node_count,
   // indicator that current partial MFR is complete
   bool flag = false;
   // vector of MFRs
-  std::vector<invadj> mfrs;
+  std::vector<innet> mfrs;
   // node at which to grow current partial MFR
   std::vector<int> tags;
   // initialize 'mfrs' and 'tags' with empty partial MFR and target node
   
-  invadj mfr;
-  mfr.insert(invadj::value_type(target_node, invadj_list[target_node]));
+  inego to_target;
+  to_target.first = target_node;
+  to_target.second = invadj_list[target_node];
+  innet mfr;
+  mfr.push_back(to_target);
   mfrs.push_back(mfr);
+  
   tags.push_back(1);
   //route r;
   //for (int i = 0; i < node_count; i++) {
@@ -401,20 +405,65 @@ List mfrs_sgg(int node_count,
   while (pointer < mfr_count) {
     
     flag = false;
-    invadj c_mfr = mfrs[pointer];
-    int c_row = tags[pointer];
+    innet cmfr = mfrs[pointer];
+    int ctag = tags[pointer];
     
     while (!flag) {
       
-      //int c_node = c_mfr;
+      int cnode = cmfr[ctag].first;
+      std::vector<int> cpred(cmfr[ctag].second);
+      
+      if (cpred.size() == 0) {
+        
+        if (ctag == cmfr.size()) {
+          flag = true;
+        } else {
+          ctag++;
+        }
+        
+      } else {
+        
+        if (node_composition[cnode]) {
+          // split current MFR into many with one in-link each
+          
+          int m = cpred.size();
+          
+          //cmfr[ctag].second.clear();
+          //cmfr[ctag].second.push_back(cpred[0]);
+          
+          for (int i = 0; i < m; i++) {
+            innet temp1 = cmfr;
+            temp1[ctag].second.clear();
+            temp1[ctag].second.push_back(cpred[i + 1]);
+            mfrs.insert(mfrs.begin() + pointer + i + 1, temp1);
+            tags.insert(tags.begin() + pointer + i + 1, ctag);
+          }
+          
+          mfr_count = mfr_count + m - 1;
+          
+        }
+        
+        // cpred = cmfr[2][ctag]
+        
+        
+        
+      }
       
     }
     
   }
   
   // return list
+  std::vector<route> mfr_seqs;
+  for (int i = 0; i < mfrs.size(); i++) {
+    route mfr_seq;
+    std::transform(mfrs[i].begin(), mfrs[i].end(),
+                   std::back_inserter(mfr_seq),
+                   linksend);
+    mfr_seqs.push_back(mfr_seq);
+  }
   return List::create(
     _["mfr_count"] = mfr_count,
-    _["mfr_set"] = mfrs
+    _["mfr_set"] = mfr_seqs
   );
 }
