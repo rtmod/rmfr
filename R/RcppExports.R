@@ -5,6 +5,14 @@ mfrs_dfs_C <- function(node_count, link_array, composite_nodes, source_node, tar
     .Call('_rmfr_mfrs_dfs_C', PACKAGE = 'rmfr', node_count, link_array, composite_nodes, source_node, target_node, silent)
 }
 
+mfrs_sgg_C_old <- function(node_count, invadj_list, node_composition, source_node, target_node, silent = TRUE) {
+    .Call('_rmfr_mfrs_sgg_C_old', PACKAGE = 'rmfr', node_count, invadj_list, node_composition, source_node, target_node, silent)
+}
+
+mfrs_sgg_C_old2 <- function(node_count, invadj_list, node_composition, source_node, target_node, silent = TRUE) {
+    .Call('_rmfr_mfrs_sgg_C_old2', PACKAGE = 'rmfr', node_count, invadj_list, node_composition, source_node, target_node, silent)
+}
+
 mfrs_sgg_C <- function(node_count, invadj_list, node_composition, source_node, target_node, silent = TRUE) {
     .Call('_rmfr_mfrs_sgg_C', PACKAGE = 'rmfr', node_count, invadj_list, node_composition, source_node, target_node, silent)
 }
