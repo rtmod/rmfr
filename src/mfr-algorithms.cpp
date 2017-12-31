@@ -18,6 +18,19 @@ void print_route_set(route_set rs, IntegerMatrix la) {
   }
 }
 
+void print_innet(innet xs) {
+  Rcout << xs.size() << " (partial) MFR(s):" << std::endl;
+  for (innet::iterator it = xs.begin();
+       it != xs.end();
+       it++) {
+    inego x = *it;
+    for (int i = 0; i < x.second.size(); i++) {
+      Rcout << " | " << x.second[i] << " -> " << x.first;
+    }
+    Rcout << std::endl;
+  }
+}
+
 // Algorithm 1 (Wang et al, 2013)
 // A depth-first search algorithm for enumerating MFRs in DAGs
 // [[Rcpp::export]]
@@ -366,13 +379,23 @@ List mfrs_dfs_C(int node_count,
 // Algorithm 3 (Wang et al, 2013)
 // A subgraph-growing algorithm for enumerating MFRs in DAGs
 // Note: throughout, all index sets begin at 0
-List mfrs_sgg(int node_count,
-              List invadj_list, // "Net"
-              LogicalVector node_composition,
-              int source_node, int target_node,
-              bool silent = true) {
+// [[Rcpp::export]]
+List mfrs_sgg_C(int node_count,
+                List invadj_list, // "Net"
+                LogicalVector node_composition,
+                int source_node, int target_node,
+                bool silent = true) {
   
   // setup
+  
+  // net
+  innet net;
+  for (int v = 0; v < node_count; v++) {
+    inego to_v;
+    to_v.first = v;
+    to_v.second = invadj_list[v];
+    net.push_back(to_v);
+  }
   
   // pointer to the current partial MFR
   int pointer = 0;
@@ -441,15 +464,58 @@ List mfrs_sgg(int node_count,
           
           mfr_count = mfr_count + m - 1;
           
+          if (!silent) {
+            Rcout << "MFR count: " << mfr_count << std::endl;
+            for (int i = 0; i < mfrs.size(); i++) {
+              print_innet(mfrs[i]);
+            }
+          }
         }
         
         // cpred = cmfr[2][ctag]
         
+        bool all_done = true;
+        for (int i = 0; i < cpred.size(); i++) {
+          
+          int v = cpred[i];
+          
+          bool chas;
+          route cmfr_seq;
+          std::transform(cmfr.begin(), cmfr.end(),
+                         std::back_inserter(cmfr_seq),
+                         linksend);
+          if (std::find(cmfr_seq.begin(),
+                        cmfr_seq.end(),
+                        v) != cmfr_seq.end()) {
+            chas = true;
+          } else {
+            chas = false;
+            all_done = false;
+          }
+          if (chas) continue;
+          
+          inego temp2 = net[i];
+          //cmfr.insert(std::end(cmfr), std::begin(temp2), std::end(temp2));
+          cmfr.push_back(temp2);
+          
+        }
         
+        if (all_done) {
+          
+          if (ctag == cmfr.size()) {
+            flag = true;
+          } else {
+            ctag++;
+          }
+          
+        }
         
       }
       
     }
+    
+    mfrs[pointer] = cmfr;
+    pointer++;
     
   }
   

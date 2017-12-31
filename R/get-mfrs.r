@@ -89,6 +89,19 @@ mfrs_dfs <- function(graph, source, target, silent) {
   )
 }
 
+mfrs_ilp <- function(graph, source, target, silent) {
+  mfrs_sgg_C(
+    node_count = vcount(graph),
+    #link_array = as_edgelist(graph, names = FALSE),
+    invadj_list = lapply(adjacent_vertices(graph, v = V(graph), mode = "in"),
+                         function(x) as.numeric(x) - 1),
+    node_composition = vertex_attr(graph, "composite"),
+    source_node = as.integer(V(graph)[source]),
+    target_node = as.integer(V(graph)[target]),
+    silent = silent
+  )
+}
+
 # rough implementation in R, to be later implemented in C++
 mfrs_sgg <- function(graph, source, target, silent) {
   
