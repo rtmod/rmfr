@@ -383,389 +383,6 @@ List mfrs_dfs_C(int node_count,
 // A subgraph-growing algorithm for enumerating MFRs in DAGs
 // Note: throughout, all index sets begin at 0
 // [[Rcpp::export]]
-List mfrs_sgg_C_old(int node_count,
-                    List invadj_list, // "Net"
-                    LogicalVector node_composition,
-                    int source_node, int target_node,
-                    bool silent = true) {
-  
-  // setup
-  
-  // net
-  innet net;
-  for (int v = 0; v < node_count; v++) {
-    inego to_v;
-    to_v.first = v;
-    to_v.second = invadj_list[v];
-    net.push_back(to_v);
-  }
-  if (!silent) {
-    Rcout << std::endl << "Net complete: ";
-    print_innet(net);
-  }
-  
-  // pointer to the current partial MFR
-  int pointer = 0;
-  // number of MFRs
-  int mfr_count = 1;
-  // indicator that current partial MFR is complete
-  bool flag = false;
-  // vector of MFRs
-  std::vector<innet> mfrs;
-  // node at which to grow current partial MFR
-  std::vector<int> tags;
-  // initialize 'mfrs' and 'tags' with empty partial MFR and target node
-  
-  inego to_target;
-  to_target.first = target_node;
-  to_target.second = invadj_list[target_node];
-  innet mfr;
-  mfr.push_back(to_target);
-  mfrs.push_back(mfr);
-  if (!silent) {
-    Rcout << std::endl << "Initial MFRs:" << std::endl;
-    for (int i = 0; i < mfrs.size(); i++) {
-      print_innet(mfrs[i]);
-    }
-  }
-  
-  tags.push_back(0);
-  
-  while (pointer < mfr_count) {
-    
-    flag = false;
-    innet cmfr = mfrs[pointer];
-    if (!silent) {
-      Rcout << std::endl << "Current MFR: ";
-      print_innet(cmfr);
-    }
-    int ctag = tags[pointer];
-    
-    while (!flag) {
-      
-      int cnode = cmfr[ctag].first;
-      std::vector<int> cpred(cmfr[ctag].second);
-      
-      if (cpred.size() == 0) {
-        
-        Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
-        Rcout << std::endl << "ctag = " << ctag << std::endl;
-        if (ctag == cmfr.size() - 1) {
-          flag = true;
-        } else {
-          ctag++;
-        }
-        
-      } else {
-        
-        if (node_composition[cnode]) {
-          // split current MFR into many with one in-link each
-          
-          int m = cpred.size();
-          
-          //cmfr[ctag].second.clear();
-          //cmfr[ctag].second.push_back(cpred[0]);
-          
-          for (int i = 0; i < m; i++) {
-            innet temp1 = cmfr;
-            temp1[ctag].second.clear();
-            temp1[ctag].second.push_back(cpred[i + 1]);
-            mfrs.insert(mfrs.begin() + pointer + i + 1, temp1);
-            tags.insert(tags.begin() + pointer + i + 1, ctag);
-          }
-          
-          mfr_count = mfr_count + m - 1;
-          
-          if (!silent) {
-            Rcout << std::endl << "MFR count: " << mfr_count << std::endl;
-            for (int i = 0; i < mfrs.size(); i++) {
-              print_innet(mfrs[i]);
-            }
-          }
-        }
-        
-        // cpred = cmfr[2][ctag]
-        
-        bool all_done = true;
-        for (int i = 0; i < cpred.size(); i++) {
-          
-          int v = cpred[i];
-          
-          bool chas;
-          route cmfr_seq;
-          std::transform(cmfr.begin(), cmfr.end(),
-                         std::back_inserter(cmfr_seq),
-                         linksend);
-          if (std::find(cmfr_seq.begin(),
-                        cmfr_seq.end(),
-                        v) != cmfr_seq.end()) {
-            chas = true;
-          } else {
-            chas = false;
-            all_done = false;
-          }
-          if (chas) continue;
-          
-          inego temp2 = net[i];
-          //cmfr.insert(std::end(cmfr), std::begin(temp2), std::end(temp2));
-          cmfr.push_back(temp2);
-          
-        }
-        
-        if (all_done) {
-          
-          Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
-          Rcout << std::endl << "ctag = " << ctag << std::endl;
-          if (ctag == cmfr.size() - 1) {
-            flag = true;
-          } else {
-            ctag++;
-          }
-          
-        }
-        
-      }
-      
-    }
-    
-    mfrs[pointer] = cmfr;
-    pointer++;
-    
-  }
-  
-  if (!silent) {
-    Rcout << std::endl << "Final MFRs:" << std::endl;
-    for (int i = 0; i < mfrs.size(); i++) {
-      print_innet(mfrs[i]);
-    }
-  }
-  
-  // return list
-  std::vector<route> mfr_seqs;
-  for (int i = 0; i < mfrs.size(); i++) {
-    route mfr_seq;
-    std::transform(mfrs[i].begin(), mfrs[i].end(),
-                   std::back_inserter(mfr_seq),
-                   linksend);
-    mfr_seqs.push_back(mfr_seq);
-  }
-  return List::create(
-    _["mfr_count"] = mfr_count,
-    _["mfr_set"] = mfr_seqs
-  );
-  
-}
-
-// [[Rcpp::export]]
-List mfrs_sgg_C_old2(int node_count,
-                     List invadj_list,
-                     LogicalVector node_composition,
-                     int source_node, int target_node,
-                     bool silent = true) {
-  
-  // setup
-  
-  // net
-  innet net;
-  for (int v = 0; v < node_count; v++) {
-    inego to_v;
-    to_v.first = v;
-    to_v.second = invadj_list[v];
-    net.push_back(to_v);
-  }
-  if (!silent) {
-    Rcout << std::endl << "Net complete: ";
-    print_innet(net);
-  }
-  
-  // pointer to the current partial MFR
-  int pointer = 0;
-  // number of MFRs
-  int mfr_count = 1;
-  // indicator that current partial MFR is complete
-  bool flag = false;
-  // vector of MFRs
-  std::vector<innet> mfrs;
-  // node at which to grow current partial MFR
-  std::vector<int> tags;
-  // initialize 'mfrs' and 'tags' with empty partial MFR and target node
-  
-  inego to_target;
-  to_target.first = target_node;
-  to_target.second = invadj_list[target_node];
-  innet mfr;
-  mfr.push_back(to_target);
-  mfrs.push_back(mfr);
-  if (!silent) {
-    Rcout << std::endl << "Initial MFRs:" << std::endl;
-    for (int i = 0; i < mfrs.size(); i++) {
-      print_innet(mfrs[i]);
-    }
-  }
-  
-  tags.push_back(0);
-  
-  while (pointer < mfr_count) {
-    
-    flag = false;
-    innet cmfr = mfrs[pointer];
-    if (!silent) {
-      Rcout << std::endl << "Current MFR: ";
-      print_innet(cmfr);
-    }
-    int ctag = tags[pointer];
-    
-    while (!flag) {
-      
-      int cnode = cmfr[ctag].first;
-      std::vector<int> cpred(cmfr[ctag].second);
-      if (!silent) {
-        Rcout << std::endl << "cnode = " << cnode << "; ";
-        Rcout << "cpred = ";
-        for (int i = 0; i < cpred.size(); i++) {
-          if (i > 0) Rcout << ",";
-          Rcout << cpred[i];
-        }
-        Rcout << std::endl;
-      }
-      
-      if (cpred.size() == 0) {
-        
-        Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
-        Rcout << "ctag = " << ctag << std::endl;
-        if (ctag == cmfr.size() - 1) {
-          flag = true;
-        } else {
-          ctag++;
-        }
-        
-      } else {
-        
-        if (node_composition[cnode] == false) {
-          // split current MFR into many with one in-link each
-          
-          int m = cpred.size();
-          if (!silent) {
-            Rcout << std::endl << "m = " << m << std::endl;
-          }
-          
-          //cmfr[ctag].second.clear();
-          //cmfr[ctag].second.push_back(cpred[0]);
-          
-          for (int i = 0; i < m; i++) {
-            innet temp1 = cmfr;
-            temp1[ctag].second.clear();
-            temp1[ctag].second.push_back(cpred[i + 1]);
-            if (!silent) {
-              Rcout << std::endl << "Temp MFR:";
-              print_innet(temp1);
-            }
-            mfrs.insert(mfrs.begin() + pointer + i + 1, temp1);
-            tags.insert(tags.begin() + pointer + i + 1, ctag);
-          }
-          
-          mfr_count = mfr_count + m - 1;
-          
-          if (!silent) {
-            Rcout << std::endl << "MFR count: " << mfr_count << std::endl;
-            Rcout << std::endl << "MFRs:" << std::endl;
-            for (int i = 0; i < mfrs.size(); i++) {
-              print_innet(mfrs[i]);
-            }
-          }
-        }
-        
-        if (!silent) {
-          Rcout << std::endl << "cpred = ";
-          for (int i = 0; i < cpred.size(); i++) {
-            if (i > 0) Rcout << ",";
-            Rcout << cpred[i];
-          }
-          Rcout << "; cmfr[ctag].second = ";
-          for (int i = 0; i < cmfr[ctag].second.size(); i++) {
-            if (i > 0) Rcout << ",";
-            Rcout << cmfr[ctag].second[i];
-          }
-          Rcout << std::endl;
-        }
-        // cpred = cmfr[ctag].second;
-        
-        bool all_done = true;
-        bool chas = false;
-        for (int i = 0; i < cpred.size(); i++) {
-          
-          int v = cpred[i];
-          
-          route cmfr_seq;
-          std::transform(cmfr.begin(), cmfr.end(),
-                         std::back_inserter(cmfr_seq),
-                         linksend);
-          if (std::find(cmfr_seq.begin(),
-                        cmfr_seq.end(),
-                        v) != cmfr_seq.end()) {
-            chas = true;
-          } else {
-            chas = false;
-            all_done = false;
-          }
-          if (chas) continue;
-          
-          inego temp2 = net[v];
-          //cmfr.insert(std::end(cmfr), std::begin(temp2), std::end(temp2));
-          cmfr.push_back(temp2);
-          if (!silent) {
-            Rcout << std::endl << "Current MFR: ";
-            print_innet(cmfr);
-          }
-          
-        }
-        
-        if (all_done) {
-          
-          Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
-          Rcout << "ctag = " << ctag << std::endl;
-          if (ctag == cmfr.size() - 1) {
-            flag = true;
-          } else {
-            ctag++;
-          }
-          
-        }
-        
-      }
-      
-    }
-    
-    mfrs[pointer] = cmfr;
-    pointer++;
-    Rcout << std::endl << "pointer = " << pointer << std::endl;
-    
-  }
-  
-  if (!silent) {
-    Rcout << std::endl << "Final MFRs:" << std::endl;
-    for (int i = 0; i < mfrs.size(); i++) {
-      print_innet(mfrs[i]);
-    }
-  }
-  
-  // return list
-  std::vector<route> mfr_seqs;
-  for (int i = 0; i < mfrs.size(); i++) {
-    route mfr_seq;
-    std::transform(mfrs[i].begin(), mfrs[i].end(),
-                   std::back_inserter(mfr_seq),
-                   linksend);
-    mfr_seqs.push_back(mfr_seq);
-  }
-  return List::create(
-    _["mfr_count"] = mfr_count,
-    _["mfr_set"] = mfr_seqs
-  );
-  
-}
-
-// [[Rcpp::export]]
 List mfrs_sgg_C(int node_count,
                 List invadj_list,
                 LogicalVector node_composition,
@@ -808,6 +425,7 @@ List mfrs_sgg_C(int node_count,
   if (!silent) {
     Rcout << std::endl << "Initial MFRs:" << std::endl;
     for (int i = 0; i < mfrs.size(); i++) {
+      Rcout << "initial MFR #" << i << ":" << std::endl;
       print_innet(mfrs[i]);
     }
   }
@@ -840,8 +458,10 @@ List mfrs_sgg_C(int node_count,
       
       if (cpred.size() == 0) {
         
-        Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
-        Rcout << "ctag = " << ctag << std::endl;
+        if (!silent) {
+          Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
+          Rcout << "ctag = " << ctag << std::endl;
+        }
         if (ctag == cmfr.size() - 1) {
           flag = true;
         } else {
@@ -858,19 +478,22 @@ List mfrs_sgg_C(int node_count,
             Rcout << std::endl << "m = " << m << std::endl;
           }
           
-          //cmfr[ctag].second.clear();
-          //cmfr[ctag].second.push_back(cpred[0]);
+          cmfr[ctag].second.clear();
+          cmfr[ctag].second.push_back(cpred[0]);
+          //mfrs[pointer] = cmfr; // SHOULD BE UNNECESSARY
+          mfrs.erase(mfrs.begin() + pointer);
+          tags.erase(tags.begin() + pointer);
           
           for (int i = 0; i < m; i++) {
             innet temp1 = cmfr;
             temp1[ctag].second.clear();
-            temp1[ctag].second.push_back(cpred[i + 1]);
+            temp1[ctag].second.push_back(cpred[i]);
             if (!silent) {
-              Rcout << std::endl << "Temp MFR:";
+              Rcout << std::endl << "Temp1 MFR: ";
               print_innet(temp1);
             }
-            mfrs.insert(mfrs.begin() + pointer + i + 1, temp1);
-            tags.insert(tags.begin() + pointer + i + 1, ctag);
+            mfrs.insert(mfrs.begin() + pointer + i, temp1);
+            tags.insert(tags.begin() + pointer + i, ctag);
           }
           
           mfr_count = mfr_count + m - 1;
@@ -879,9 +502,69 @@ List mfrs_sgg_C(int node_count,
             Rcout << std::endl << "MFR count: " << mfr_count << std::endl;
             Rcout << std::endl << "MFRs:" << std::endl;
             for (int i = 0; i < mfrs.size(); i++) {
+              Rcout << "MFR #" << i << ":" << std::endl;
               print_innet(mfrs[i]);
             }
           }
+          if (mfr_count != mfrs.size()) {
+            stop("MFR count disagrees with size of MFR vector.");
+          }
+        }
+        
+        if (!silent) {
+          Rcout << std::endl << "cpred = ";
+          for (int i = 0; i < cpred.size(); i++) {
+            if (i > 0) Rcout << ",";
+            Rcout << cpred[i];
+          }
+          Rcout << "; cmfr[ctag].second = ";
+          for (int i = 0; i < cmfr[ctag].second.size(); i++) {
+            if (i > 0) Rcout << ",";
+            Rcout << cmfr[ctag].second[i];
+          }
+          Rcout << std::endl;
+        }
+        cpred = cmfr[ctag].second;
+        
+        bool all_done = true;
+        
+        bool chas;
+        for (int i = 0; i < cpred.size(); i++) {
+          
+          int v = cpred[i];
+          
+          chas = false;
+          for (int j = 0; j < cmfr.size(); j++) {
+            if (cmfr[j].first == v) {
+              chas = true;
+            }
+          }
+          if (chas) continue;
+          
+          all_done = false;
+          inego temp2 = net[v];
+          //cmfr.insert(std::end(cmfr), std::begin(temp2), std::end(temp2));
+          cmfr.push_back(temp2);
+          if (!silent) {
+            Rcout << std::endl << "Current MFR w/ Temp2: ";
+            print_innet(cmfr);
+          }
+          ctag++;
+          
+        }
+        
+        if (all_done) {
+          
+          if (!silent) {
+            Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
+            Rcout << "ctag = " << ctag << std::endl;
+          }
+          if (ctag == cmfr.size() - 1) {
+            flag = true;
+          } else {
+            ctag++;
+          }
+          
         }
         
       }
@@ -890,29 +573,66 @@ List mfrs_sgg_C(int node_count,
     
     mfrs[pointer] = cmfr;
     pointer++;
-    Rcout << std::endl << "pointer = " << pointer << std::endl;
+    if (!silent) {
+      Rcout << std::endl << "pointer = " << pointer << std::endl;
+    }
     
   }
   
   if (!silent) {
     Rcout << std::endl << "Final MFRs:" << std::endl;
     for (int i = 0; i < mfrs.size(); i++) {
+      Rcout << "final MFR #" << i << ":" << std::endl;
       print_innet(mfrs[i]);
     }
   }
   
+  // require source node
+  for (int i = mfrs.size() - 1; i >= 0; i--) {
+    bool has_source = false;
+    for (int j = 0; j < mfrs[i].size(); j++) {
+      if (mfrs[i][j].first == source_node) {
+        has_source = true;
+      }
+    }
+    if (!has_source) {
+      mfrs.erase(mfrs.begin() + i);
+      mfr_count--;
+    }
+  }
+  
   // return list
-  std::vector<route> mfr_seqs;
+  std::vector<egos> mfrs_egos;
   for (int i = 0; i < mfrs.size(); i++) {
-    route mfr_seq;
+    egos mfr_egos;
     std::transform(mfrs[i].begin(), mfrs[i].end(),
-                   std::back_inserter(mfr_seq),
-                   linksend);
-    mfr_seqs.push_back(mfr_seq);
+                   std::back_inserter(mfr_egos),
+                   get_ego);
+    mfrs_egos.push_back(mfr_egos);
+  }
+  List mfrs_links;
+  for (int i = 0; i < mfrs.size(); i++) {
+    innet mfr = mfrs[i];
+    // number of links
+    int link_count = 0;
+    for (int j = 0; j < mfr.size(); j++) {
+      link_count += mfr[j].second.size();
+    }
+    IntegerMatrix mfr_links(link_count, 2);
+    // fill matrix with links
+    int link_row = 0;
+    for (int j = 0; j < mfr.size(); j++) {
+      for (int k = 0; k < mfr[j].second.size(); k++) {
+        mfr_links(link_row, 0) = mfr[j].second[k];
+        mfr_links(link_row, 1) = mfr[j].first;
+        link_row++;
+      }
+    }
+    mfrs_links[std::to_string(i + 1)] = mfr_links;
   }
   return List::create(
     _["mfr_count"] = mfr_count,
-    _["mfr_set"] = mfr_seqs
+    _["mfrs_links"] = mfrs_links
   );
   
 }

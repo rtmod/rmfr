@@ -15,6 +15,7 @@ typedef std::vector<route> route_vec;
 //typedef std::map<int, std::vector<int> > invadj;
 typedef std::pair<int, std::vector<int> > inego;
 typedef std::vector<inego> innet;
-int linksend( const inego &p ) {
+typedef std::vector<int> egos;
+int get_ego( const inego &p ) {
   return p.first;
 }
