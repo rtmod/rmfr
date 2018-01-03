@@ -549,7 +549,6 @@ List mfrs_sgg_C(int node_count,
             Rcout << std::endl << "Current MFR w/ Temp2: ";
             print_innet(cmfr);
           }
-          ctag++;
           
         }
         
@@ -564,6 +563,10 @@ List mfrs_sgg_C(int node_count,
           } else {
             ctag++;
           }
+          
+        } else {
+          
+          ctag++;
           
         }
         

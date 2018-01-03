@@ -59,19 +59,19 @@ plot(
 graph <- graph(c( 1,3, 2,3 ))
 graph <- set_vertex_attr(graph, "composite", value = FALSE)
 get_mfrs(graph, source = 1, target = 3, algorithm = "sgg", silent = FALSE)
-get_mfrs(graph, source = 1, target = 3, algorithm = "ilp", silent = FALSE)
+get_mfrs(graph, source = 1, target = 3, algorithm = "sggR", silent = FALSE)
 
 graph <- graph(c( 1,2, 2,3, 1,3, 3,4 ))
 plot(graph, edge.label = E(graph))
 graph <- set_vertex_attr(graph, "composite", value = FALSE)
 get_mfrs(graph, source = 1, target = 4, algorithm = "sgg", silent = TRUE)
-get_mfrs(graph, source = 1, target = 4, algorithm = "ilp", silent = TRUE)
+get_mfrs(graph, source = 1, target = 4, algorithm = "sggR", silent = TRUE)
 
 graph <- graph(c( 1,2, 1,3, 2,4, 3,4, 4,5, 3,6, 6,5 ))
 plot(graph, edge.label = E(graph))
 graph <- set_vertex_attr(graph, "composite", value = as.logical(c(0,0,0,1,0,0)))
 get_mfrs(graph, source = 1, target = 5, algorithm = "sgg")
-get_mfrs(graph, source = 1, target = 5, algorithm = "ilp")
+get_mfrs(graph, source = 1, target = 5, algorithm = "sggR")
 
 # subgraph-growing algorithm: acyclic example
 acyclic_expansion <- expand_graph(example_acyclic)
@@ -79,9 +79,9 @@ plot(acyclic_expansion,
      layout = layout_as_tree,
      vertex.color = ifelse(V(acyclic_expansion)$composite, "gray", "white"),
      edge.label = E(acyclic_expansion))
-# ERROR
+get_mfrs(acyclic_expansion, source = "I", target = "O", algorithm = "dfs")
 get_mfrs(acyclic_expansion, source = "I", target = "O", algorithm = "sgg")
-get_mfrs(acyclic_expansion, source = "I", target = "O", algorithm = "ilp")
+get_mfrs(acyclic_expansion, source = "I", target = "O", algorithm = "sggR")
 
 # subgraph-growing algorithm: cyclic example
 cyclic_expansion <- expand_graph(example_cyclic)
@@ -90,4 +90,16 @@ plot(cyclic_expansion,
      vertex.color = ifelse(V(cyclic_expansion)$composite, "gray", "white"),
      edge.label = E(cyclic_expansion))
 get_mfrs(cyclic_expansion, source = "s", target = "t", algorithm = "sgg")
-get_mfrs(cyclic_expansion, source = "s", target = "t", algorithm = "ilp")
+get_mfrs(cyclic_expansion, source = "s", target = "t", algorithm = "sggR")
+
+\dontrun{
+rbenchmark::benchmark(
+  get_mfrs(cyclic_expansion, source = "s", target = "t", algorithm = "sgg"),
+  get_mfrs(cyclic_expansion, source = "s", target = "t", algorithm = "sggR")
+)
+rbenchmark::benchmark(
+  get_mfrs(acyclic_expansion, source = "I", target = "O", algorithm = "dfs"),
+  get_mfrs(acyclic_expansion, source = "I", target = "O", algorithm = "sgg"),
+  get_mfrs(acyclic_expansion, source = "I", target = "O", algorithm = "sggR")
+)
+}

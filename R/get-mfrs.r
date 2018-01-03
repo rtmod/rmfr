@@ -17,8 +17,9 @@
 #' @param algorithm An algorithm from Wang et al (2013) from among the 
 #'   following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"} 
 #'   (iterative integer linear programming; Algorithm 2), or \code{"sgg"} 
-#'   (subgraph-growing; Algorithm 3). \strong{Currently only Algorithm 1 is 
-#'   implemented in C++, and Algorithm 2 is implemented in R.}
+#'   (subgraph-growing; Algorithm 3). \strong{Currently Algorithms 1 and 3 are 
+#'   implemented in C++; Algorithm 3 also has an implementation in R, employed
+#'   by passing \code{"sggR"}.}
 #' @param silent Whether to print updates on the progress of the algorithm 
 #'   (deprecated).
 #' @param output Whether to return the list of MFRs as \code{"sequences"} of 
@@ -44,7 +45,7 @@ get_mfrs <- function(
   if (is.null(algorithm)) {
     algorithm <- if (graph_is_dag) "dfs" else "sgg"
   }
-  algorithm <- match.arg(algorithm, c("dfs", "ilp", "sgg"))
+  algorithm <- match.arg(algorithm, c("dfs", "ilp", "sgg", "sggR"))
   if (algorithm == "dfs" & !graph_is_dag) {
     warning("Depth-first search algorithm 'dfs' is proved only for DAGs.")
   }
@@ -56,7 +57,7 @@ get_mfrs <- function(
     stopifnot(mfrs$mfr_count == length(mfrs$mfr_set))
     mfrs <- mfrs$mfr_set %>%
       lapply(function(x) x + 1)
-  } else if (algorithm == "ilp") {
+  } else if (algorithm == "sgg") {
     stopifnot(mfrs$mfr_count == length(mfrs$mfrs_links))
     mfrs <- mfrs$mfrs_links %>% unname() %>%
       lapply(function(x) x + 1) %>%
@@ -95,7 +96,7 @@ mfrs_dfs <- function(graph, source, target, silent) {
   )
 }
 
-mfrs_ilp <- function(graph, source, target, silent) {
+mfrs_sgg <- function(graph, source, target, silent) {
   mfrs_sgg_C(
     node_count = vcount(graph),
     invadj_list = lapply(adjacent_vertices(graph, v = V(graph), mode = "in"),
@@ -108,7 +109,7 @@ mfrs_ilp <- function(graph, source, target, silent) {
 }
 
 # rough implementation in R, to be later implemented in C++
-mfrs_sgg <- function(graph, source, target, silent) {
+mfrs_sggR <- function(graph, source, target, silent) {
   
   # setup
   source <- as.numeric(V(graph)[source])
