@@ -17,8 +17,9 @@
 #' @param algorithm An algorithm from Wang et al (2013) from among the 
 #'   following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"} 
 #'   (iterative integer linear programming; Algorithm 2), or \code{"sgg"} 
-#'   (subgraph-growing; Algorithm 3). \strong{Currently only Algorithm 1 is 
-#'   implemented in C++, and Algorithm 2 is implemented in R.}
+#'   (subgraph-growing; Algorithm 3). \strong{Currently Algorithms 1 and 3 are 
+#'   implemented in C++; Algorithm 3 also has an implementation in R, employed
+#'   by passing \code{"sggR"}.}
 #' @param silent Whether to print updates on the progress of the algorithm 
 #'   (deprecated).
 #' @param output Whether to return the list of MFRs as \code{"sequences"} of 
@@ -44,7 +45,7 @@ get_mfrs <- function(
   if (is.null(algorithm)) {
     algorithm <- if (graph_is_dag) "dfs" else "sgg"
   }
-  algorithm <- match.arg(algorithm, c("dfs", "ilp", "sgg"))
+  algorithm <- match.arg(algorithm, c("dfs", "ilp", "sgg", "sggR"))
   if (algorithm == "dfs" & !graph_is_dag) {
     warning("Depth-first search algorithm 'dfs' is proved only for DAGs.")
   }
@@ -57,6 +58,13 @@ get_mfrs <- function(
     stopifnot(mfrs$mfr_count == length(mfrs$mfr_set))
     mfrs <- mfrs$mfr_set %>%
       lapply(function(x) x + 1)
+  } else if (algorithm == "sgg") {
+    stopifnot(mfrs$mfr_count == length(mfrs$mfrs_links))
+    mfrs <- mfrs$mfrs_links %>% unname() %>%
+      lapply(function(x) x + 1) %>%
+      lapply(t) %>% lapply(as.vector) %>%
+      lapply(get.edge.ids, graph = graph) %>%
+      lapply(sort)
   }
   
   if (expand) {
@@ -89,8 +97,20 @@ mfrs_dfs <- function(graph, source, target, silent) {
   )
 }
 
-# rough implementation in R, to be later implemented in C++
 mfrs_sgg <- function(graph, source, target, silent) {
+  mfrs_sgg_C(
+    node_count = vcount(graph),
+    invadj_list = lapply(adjacent_vertices(graph, v = V(graph), mode = "in"),
+                         function(x) as.numeric(x) - 1),
+    node_composition = vertex_attr(graph, "composite"),
+    source_node = as.integer(V(graph)[source]) - 1,
+    target_node = as.integer(V(graph)[target]) - 1,
+    silent = silent
+  )
+}
+
+# rough implementation in R, to be later implemented in C++
+mfrs_sggR <- function(graph, source, target, silent) {
   
   # setup
   source <- as.numeric(V(graph)[source])
@@ -103,6 +123,10 @@ mfrs_sgg <- function(graph, source, target, silent) {
     as.numeric(V(graph)),
     unname(lapply(as_adj_list(graph, "in"), as.numeric))
   )
+  if (!silent) {
+    print("Net complete:")
+    print(net)
+  }
   
   # initialization
   pointer <- 1
@@ -110,6 +134,12 @@ mfrs_sgg <- function(graph, source, target, silent) {
   flag <- FALSE
   mfrs <- list(list(net[[1]][target], net[[2]][target]))
   tag <- c(1)
+  if (!silent) {
+    print("Initial MFRs:")
+    for (mfr in mfrs) {
+      print(mfr)
+    }
+  }
   
   # while some partial MFRs remain
   while (pointer <= n_mfrs) {
@@ -117,18 +147,29 @@ mfrs_sgg <- function(graph, source, target, silent) {
     flag <- FALSE
     cmfr <- mfrs[[pointer]]
     ctag <- tag[pointer]
+    if (!silent) {
+      print("Current MFR:")
+      print(cmfr)
+    }
     
     # while the current MFR is incomplete
     while (flag == FALSE) {
       
       cnode <- cmfr[[1]][[ctag]]
       cpred <- cmfr[[2]][[ctag]]
+      if (!silent) {
+        print(paste0("cnode = ", cnode, "; cpred = ",
+                     paste(cpred, collapse = ",")))
+      }
       
       # if no predecessors remain,
       # then either increment the tag or mark the current partial MFR complete
       if (length(cpred) == 0) {
         
         # if the current node is the last node of the current partial MFR
+        if (!silent) {
+          print(paste0("length(cmfr) = ", length(cmfr), "; ctag = ", ctag))
+        }
         if (ctag == length(cmfr[[1]])) {
           flag <- TRUE
         } else {
@@ -143,6 +184,9 @@ mfrs_sgg <- function(graph, source, target, silent) {
         if (!(cnode %in% composite_nodes)) {
           
           m <- length(cpred)
+          if (!silent) {
+            print(paste0("m = ", m))
+          }
           cmfr[[2]][[ctag]] <- cpred[1]
           
           i <- 0
@@ -153,8 +197,13 @@ mfrs_sgg <- function(graph, source, target, silent) {
             #mfrs[[n_mfrs + i]] <- temp1 ### SHOULD THIS BE 'pointer'?
             dmfrs[[i + 1]] <- temp1 ###
             #tag[n_mfrs + i] <- ctag
+            if (!silent) {
+              print("Temp1 MFR:")
+              print(temp1)
+            }
             i <- i + 1
           }
+          # instert new MFRs at the location of the current one
           mfrs <- c(
             if (pointer > 1) mfrs[1:(pointer - 1)] else NULL,
             dmfrs,
@@ -166,9 +215,19 @@ mfrs_sgg <- function(graph, source, target, silent) {
             if (n_mfrs > pointer) tag[(pointer + 1):n_mfrs] else NULL
           ) ###
           n_mfrs <- n_mfrs + m - 1
+          if (!silent) {
+            print(paste("MFR count:", n_mfrs))
+            print("MFRs:")
+            for (mfr in mfrs) print(mfr)
+          }
           
         }
         
+        if (!silent) {
+          print(paste0("cpred = ", paste(cpred, collapse = ","), "; ",
+                       "cmfr[[2]][[ctag]] = ",
+                       paste(cmfr[[2]][[ctag]], collapse = ",")))
+        }
         cpred <- cmfr[[2]][[ctag]]
         
         # if all current predecessors are in the current partial MFR,
@@ -183,6 +242,9 @@ mfrs_sgg <- function(graph, source, target, silent) {
           } else {
             ctag <- ctag + 1
           }
+          if (!silent) {
+            print(paste0("length(cmfr) = ", length(cmfr), "; ctag = ", ctag))
+          }
           
         } else {
           
@@ -192,6 +254,10 @@ mfrs_sgg <- function(graph, source, target, silent) {
             temp2 <- list(net[[1]][i], net[[2]][i])
             cmfr[[1]] <- c(cmfr[[1]], temp2[[1]])
             cmfr[[2]] <- c(cmfr[[2]], temp2[[2]])
+            if (!silent) {
+              print("Current MFR w/ Temp2:")
+              print(cmfr)
+            }
           }
           ctag <- ctag + 1
           
@@ -203,9 +269,16 @@ mfrs_sgg <- function(graph, source, target, silent) {
     
     mfrs[[pointer]] <- cmfr ###
     pointer <- pointer + 1
+    if (!silent) {
+      print(paste0("pointer = ", pointer))
+    }
     
   }
   
+  if (!silent) {
+    print("Final MFRs:")
+    for (mfr in mfrs) print(mfr)
+  }
   # require source node
   mfrs <- mfrs[which(!is.na(sapply(mfrs, function(mfr) {
     match(source, mfr[[1]])
