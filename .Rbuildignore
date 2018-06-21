@@ -1,10 +1,12 @@
 # R will ignore these files when building the package.
 
-# devtools
+# package background
 ^data-raw$
-
-# roxygen
 ^man-roxygen$
 
-# sandbox
+# experimentation
 ^sandbox$
+
+# R project metadata
+^.*\.Rproj$
+^\.Rproj\.user$

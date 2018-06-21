@@ -1,10 +1,10 @@
-# Mac stuff
+# Mac
 .DS_Store
 
-# R stuff
+# R
 .RData
 .Rhistory
+.Rproj.user
 
-# sandbox
-^sandbox$
-sandbox/*
+# experimentation
+sandbox
