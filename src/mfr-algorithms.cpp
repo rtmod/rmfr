@@ -42,22 +42,22 @@ List mfrs_dfs_C(int node_count,
                 IntegerVector composite_nodes,
                 int source_node, int target_node,
                 bool silent = true) {
-  
+
   // setup
-  
+
   // sort 'composite_nodes' and ensure that it has no duplicates
   std::sort(composite_nodes.begin(), composite_nodes.end());
   // ensure that 'link_array' has two columns (and node index entries?)
   if (link_array.ncol() != 2) {
     stop("Matrix of links does not have two columns.");
   }
-  
+
   // initialization
-  
+
   int mfr_count = 0; // "count"
   route_set mfr_set; // "MFR"
   std::stack<int> link_stack; // "edge_list"
-  
+
   // "visit_num([node])"
   int node_visit_count[node_count];
   // "partialMFR([node])"
@@ -80,7 +80,7 @@ List mfrs_dfs_C(int node_count,
       print_route_set(node_pmfr_map[i], link_array);
     }
   }
-  
+
   // in-links to composite nodes
   std::map<int, std::vector<int> > composite_inlinks;
   // "visit_num([link])"
@@ -119,9 +119,9 @@ List mfrs_dfs_C(int node_count,
         composite_nodes[i], inlink_pmfr_map
     ));
   }
-  
+
   // visiting the source node
-  
+
   // set 'source_node' visit count to 1
   node_visit_count[source_node - 1] = 1;
   // append to 'link_stack' each link from 'source_node'
@@ -131,15 +131,15 @@ List mfrs_dfs_C(int node_count,
       link_stack.push(i);
     }
   }
-  
+
   // visiting the lower branches
-  
+
   while (link_stack.size() > 0) {
-    
+
     if (!silent) {
       Rcout << "... (pop link stack) ..." << std::endl;
     }
-    
+
     // store the most recent link as 'e'
     int e = link_stack.top();
     // pop out 'e' from 'link_stack'
@@ -150,7 +150,7 @@ List mfrs_dfs_C(int node_count,
       Rcout << "link e = " << e << "; nodes u = " << u << ", w = " << w <<
         std::endl;
     }
-    
+
     // is 'w' a composite node?
     int *i = std::find(std::begin(composite_nodes),
                        std::end(composite_nodes),
@@ -175,20 +175,20 @@ List mfrs_dfs_C(int node_count,
       //  "with link " << e << " concatenated: ";
       //print_route_set(u_pmfrs_e, link_array);
     }
-    
+
     std::map<int,int> w_inlink_visit_count;
     std::map<int, route_set> w_inlink_pmfr_map;
-    
+
     // if 'w' is a composite node...
     if (w_composite) {
-      
+
       // Temp1 and Temp2
       w_inlink_visit_count = inlink_visit_counts[w];
       w_inlink_pmfr_map = inlink_pmfr_maps[w];
-      
+
       // increment the in-link visit count
       inlink_visit_counts[w][e] += node_visit_count[u - 1];
-      
+
       // append the concatenated routes to the appropriate route set
       route_set we_inlink_pmfrs = inlink_pmfr_maps[w][e];
       route_set::iterator it;
@@ -203,12 +203,12 @@ List mfrs_dfs_C(int node_count,
         //Rcout << "node " << w << " in-link " << e << " route set: ";
         //print_route_set(inlink_pmfr_maps[w][e], link_array);
       }
-      
+
     }
-    
+
     // if 'w' is the sink node...
     if (w == target_node) {
-      
+
       mfr_count += node_visit_count[u - 1];
       mfr_set.insert(u_pmfrs_e.begin(), u_pmfrs_e.end());
       if (!silent) {
@@ -216,9 +216,9 @@ List mfrs_dfs_C(int node_count,
         Rcout << "MFR set: ";
         print_route_set(mfr_set, link_array);
       }
-      
+
     } else {
-      
+
       // have all links to 'w' been visited?
       int w_inlinks_visited = 1;
       for (int l = 0; l < link_array.nrow(); l++) {
@@ -228,20 +228,20 @@ List mfrs_dfs_C(int node_count,
           }
         }
       }
-      
+
       // if 'w' is original or all links to 'w' have been visited...
       if ((!w_composite) | (w_inlinks_visited)) {
-        
+
         // append all links from 'w' to the link stack
         for (int l = link_array.nrow() - 1; l >= 0; l--) {
           if (link_array(l, 0) == w) {
             link_stack.push(l);
           }
         }
-        
+
         // set the visit count and route set of 'w'
         if (!w_composite) {
-          
+
           // reset 'partialMFR' at 'w' to the concatenated 'partialMFR' at 'u'
           if (!silent) {
             //Rcout << "old node " << w << " route set: ";
@@ -261,9 +261,9 @@ List mfrs_dfs_C(int node_count,
             //Rcout << "new node " << w << " route set: ";
             //print_route_set(node_pmfr_map[w - 1], link_array);
           }
-          
+
         } else {
-          
+
           if (!silent) {
             //Rcout << "all node " << w << " in-links visited." << std::endl;
           }
@@ -278,10 +278,10 @@ List mfrs_dfs_C(int node_count,
             Rcout << "product difference: " << curr_prod << " - " <<
               prev_prod << " = " << node_visit_count[w - 1] << std::endl;
           }
-          
+
           // set-difference:
           // pMFR(w) = Otimes_v pMFR(e_{v,w}) - Otimes_v Temp2(e_{v,w})
-          
+
           if (!silent) {
             Rcout << "all node " << w << " in-link route sets:" << std::endl;
             for (int i = 0; i < inlink_pmfr_maps[w].size(); i++) {
@@ -307,6 +307,10 @@ List mfrs_dfs_C(int node_count,
               route r = r0;
               r.insert(r.end(), r1.begin(), r1.end());
               std::sort(r.begin(), r.end());
+              route::iterator it;
+              // remove adjacent duplicates
+              it = std::unique(r.begin(), r.end());
+              r.resize(std::distance(r.begin(), it));
               curr_combn.insert(r);
             }
           }
@@ -362,19 +366,19 @@ List mfrs_dfs_C(int node_count,
             print_route_set(node_pmfr_map[w - 1], link_array);
           }
         }
-        
+
       }
-      
+
     }
-    
+
   }
-  
+
   // return list
   return List::create(
     _["mfr_count"] = mfr_count,
     _["mfr_set"] = mfr_set
   );
-  
+
 }
 
 // Algorithm 2 (Wang et al, 2013)
@@ -388,9 +392,9 @@ List mfrs_sgg_C(int node_count,
                 LogicalVector node_composition,
                 int source_node, int target_node,
                 bool silent = true) {
-  
+
   // setup
-  
+
   // net
   innet net;
   for (int v = 0; v < node_count; v++) {
@@ -403,7 +407,7 @@ List mfrs_sgg_C(int node_count,
     Rcout << std::endl << "Net complete: ";
     print_innet(net);
   }
-  
+
   // pointer to the current partial MFR
   int pointer = 0;
   // number of MFRs
@@ -415,7 +419,7 @@ List mfrs_sgg_C(int node_count,
   // node at which to grow current partial MFR
   std::vector<int> tags;
   // initialize 'mfrs' and 'tags' with empty partial MFR and target node
-  
+
   inego to_target;
   to_target.first = target_node;
   to_target.second = invadj_list[target_node];
@@ -429,11 +433,11 @@ List mfrs_sgg_C(int node_count,
       print_innet(mfrs[i]);
     }
   }
-  
+
   tags.push_back(0);
-  
+
   while (pointer < mfr_count) {
-    
+
     flag = false;
     innet cmfr = mfrs[pointer];
     if (!silent) {
@@ -441,9 +445,9 @@ List mfrs_sgg_C(int node_count,
       print_innet(cmfr);
     }
     int ctag = tags[pointer];
-    
+
     while (!flag) {
-      
+
       int cnode = cmfr[ctag].first;
       std::vector<int> cpred(cmfr[ctag].second);
       if (!silent) {
@@ -455,9 +459,9 @@ List mfrs_sgg_C(int node_count,
         }
         Rcout << std::endl;
       }
-      
+
       if (cpred.size() == 0) {
-        
+
         if (!silent) {
           Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
           Rcout << "ctag = " << ctag << std::endl;
@@ -467,23 +471,23 @@ List mfrs_sgg_C(int node_count,
         } else {
           ctag++;
         }
-        
+
       } else {
-        
+
         if (node_composition[cnode] == false) {
           // split current MFR into many with one in-link each
-          
+
           int m = cpred.size();
           if (!silent) {
             Rcout << std::endl << "m = " << m << std::endl;
           }
-          
+
           cmfr[ctag].second.clear();
           cmfr[ctag].second.push_back(cpred[0]);
           //mfrs[pointer] = cmfr; // SHOULD BE UNNECESSARY
           mfrs.erase(mfrs.begin() + pointer);
           tags.erase(tags.begin() + pointer);
-          
+
           for (int i = 0; i < m; i++) {
             innet temp1 = cmfr;
             temp1[ctag].second.clear();
@@ -495,9 +499,9 @@ List mfrs_sgg_C(int node_count,
             mfrs.insert(mfrs.begin() + pointer + i, temp1);
             tags.insert(tags.begin() + pointer + i, ctag);
           }
-          
+
           mfr_count = mfr_count + m - 1;
-          
+
           if (!silent) {
             Rcout << std::endl << "MFR count: " << mfr_count << std::endl;
             Rcout << std::endl << "MFRs:" << std::endl;
@@ -510,7 +514,7 @@ List mfrs_sgg_C(int node_count,
             stop("MFR count disagrees with size of MFR vector.");
           }
         }
-        
+
         if (!silent) {
           Rcout << std::endl << "cpred = ";
           for (int i = 0; i < cpred.size(); i++) {
@@ -525,14 +529,14 @@ List mfrs_sgg_C(int node_count,
           Rcout << std::endl;
         }
         cpred = cmfr[ctag].second;
-        
+
         bool all_done = true;
-        
+
         bool chas;
         for (int i = 0; i < cpred.size(); i++) {
-          
+
           int v = cpred[i];
-          
+
           chas = false;
           for (int j = 0; j < cmfr.size(); j++) {
             if (cmfr[j].first == v) {
@@ -540,7 +544,7 @@ List mfrs_sgg_C(int node_count,
             }
           }
           if (chas) continue;
-          
+
           all_done = false;
           inego temp2 = net[v];
           //cmfr.insert(std::end(cmfr), std::begin(temp2), std::end(temp2));
@@ -549,11 +553,11 @@ List mfrs_sgg_C(int node_count,
             Rcout << std::endl << "Current MFR w/ Temp2: ";
             print_innet(cmfr);
           }
-          
+
         }
-        
+
         if (all_done) {
-          
+
           if (!silent) {
             Rcout << std::endl << "cmfr.size() = " << cmfr.size() << "; ";
             Rcout << "ctag = " << ctag << std::endl;
@@ -563,25 +567,25 @@ List mfrs_sgg_C(int node_count,
           } else {
             ctag++;
           }
-          
+
         } else {
-          
+
           ctag++;
-          
+
         }
-        
+
       }
-      
+
     }
-    
+
     mfrs[pointer] = cmfr;
     pointer++;
     if (!silent) {
       Rcout << std::endl << "pointer = " << pointer << std::endl;
     }
-    
+
   }
-  
+
   if (!silent) {
     Rcout << std::endl << "Final MFRs:" << std::endl;
     for (int i = 0; i < mfrs.size(); i++) {
@@ -589,7 +593,7 @@ List mfrs_sgg_C(int node_count,
       print_innet(mfrs[i]);
     }
   }
-  
+
   // require source node
   for (int i = mfrs.size() - 1; i >= 0; i--) {
     bool has_source = false;
@@ -603,7 +607,7 @@ List mfrs_sgg_C(int node_count,
       mfr_count--;
     }
   }
-  
+
   // return list
   std::vector<egos> mfrs_egos;
   for (int i = 0; i < mfrs.size(); i++) {
@@ -637,5 +641,5 @@ List mfrs_sgg_C(int node_count,
     _["mfr_count"] = mfr_count,
     _["mfrs_links"] = mfrs_links
   );
-  
+
 }
