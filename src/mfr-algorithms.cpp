@@ -40,7 +40,7 @@ void print_innet(innet xs) {
 List mfrs_dfs_C(int node_count,
                 IntegerMatrix link_array,
                 IntegerVector composite_nodes,
-                int source_node, int target_node,
+                int input_node, int output_node,
                 bool silent = true) {
 
   // setup
@@ -68,7 +68,7 @@ List mfrs_dfs_C(int node_count,
     //route empty_route;
     route_set empty_route_set;
     //empty_route_set.insert(empty_route);
-    if (i + 1 == source_node) {
+    if (i + 1 == input_node) {
       route empty_route;
       empty_route_set.insert(empty_route);
     }
@@ -120,14 +120,14 @@ List mfrs_dfs_C(int node_count,
     ));
   }
 
-  // visiting the source node
+  // visiting the input node
 
-  // set 'source_node' visit count to 1
-  node_visit_count[source_node - 1] = 1;
-  // append to 'link_stack' each link from 'source_node'
+  // set 'input_node' visit count to 1
+  node_visit_count[input_node - 1] = 1;
+  // append to 'link_stack' each link from 'input_node'
   // APPARENTLY THE ORDER REALLY MATTERS
   for (int i = link_array.nrow() - 1; i >= 0; i--) {
-    if (link_array(i, 0) == source_node) {
+    if (link_array(i, 0) == input_node) {
       link_stack.push(i);
     }
   }
@@ -207,7 +207,7 @@ List mfrs_dfs_C(int node_count,
     }
 
     // if 'w' is the sink node...
-    if (w == target_node) {
+    if (w == output_node) {
 
       mfr_count += node_visit_count[u - 1];
       mfr_set.insert(u_pmfrs_e.begin(), u_pmfrs_e.end());
@@ -390,7 +390,7 @@ List mfrs_dfs_C(int node_count,
 List mfrs_sgg_C(int node_count,
                 List invadj_list,
                 LogicalVector node_composition,
-                int source_node, int target_node,
+                int input_node, int output_node,
                 bool silent = true) {
 
   // setup
@@ -418,13 +418,13 @@ List mfrs_sgg_C(int node_count,
   std::vector<innet> mfrs;
   // node at which to grow current partial MFR
   std::vector<int> tags;
-  // initialize 'mfrs' and 'tags' with empty partial MFR and target node
+  // initialize 'mfrs' and 'tags' with empty partial MFR and output node
 
-  inego to_target;
-  to_target.first = target_node;
-  to_target.second = invadj_list[target_node];
+  inego to_output;
+  to_output.first = output_node;
+  to_output.second = invadj_list[output_node];
   innet mfr;
-  mfr.push_back(to_target);
+  mfr.push_back(to_output);
   mfrs.push_back(mfr);
   if (!silent) {
     Rcout << std::endl << "Initial MFRs:" << std::endl;
@@ -594,15 +594,15 @@ List mfrs_sgg_C(int node_count,
     }
   }
 
-  // require source node
+  // require input node
   for (int i = mfrs.size() - 1; i >= 0; i--) {
-    bool has_source = false;
+    bool has_input = false;
     for (int j = 0; j < mfrs[i].size(); j++) {
-      if (mfrs[i][j].first == source_node) {
-        has_source = true;
+      if (mfrs[i][j].first == input_node) {
+        has_input = true;
       }
     }
-    if (!has_source) {
+    if (!has_input) {
       mfrs.erase(mfrs.begin() + i);
       mfr_count--;
     }
