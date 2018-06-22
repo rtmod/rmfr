@@ -439,6 +439,7 @@ List mfrs_sgg_C(int node_count,
   while (pointer < mfr_count) {
 
     flag = false;
+    bool missing_source = false;
     innet cmfr = mfrs[pointer];
     if (!silent) {
       Rcout << std::endl << "Current MFR: ";
@@ -547,11 +548,17 @@ List mfrs_sgg_C(int node_count,
 
           all_done = false;
           inego temp2 = net[v];
+
           //cmfr.insert(std::end(cmfr), std::begin(temp2), std::end(temp2));
           cmfr.push_back(temp2);
           if (!silent) {
             Rcout << std::endl << "Current MFR w/ Temp2: ";
             print_innet(cmfr);
+          }
+
+          bool is_input = temp2.first == input_node;
+          if ((temp2.second.size() == 0) & !is_input) {
+            missing_source = true;
           }
 
         }
@@ -574,12 +581,25 @@ List mfrs_sgg_C(int node_count,
 
         }
 
+        // stop running if the partial MFR cannot become an actual MFR
+        if (missing_source) {
+          flag = true;
+        }
+
       }
 
     }
 
-    mfrs[pointer] = cmfr;
-    pointer++;
+    // drop this MFR if a source node is missing; otherwise add and increment
+    if (missing_source) {
+      mfrs.erase(mfrs.begin() + pointer);
+      tags.erase(tags.begin() + pointer);
+      mfr_count--;
+    } else {
+      mfrs[pointer] = cmfr;
+      pointer++;
+    }
+
     if (!silent) {
       Rcout << std::endl << "pointer = " << pointer << std::endl;
     }
