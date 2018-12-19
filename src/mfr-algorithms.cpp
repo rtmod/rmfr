@@ -391,6 +391,7 @@ List mfrs_sgg_C(int node_count,
                 List invadj_list,
                 LogicalVector node_composition,
                 int input_node, int output_node,
+                IntegerVector source_nodes,
                 bool silent = true) {
 
   // setup

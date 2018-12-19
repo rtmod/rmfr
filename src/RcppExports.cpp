@@ -22,8 +22,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // mfrs_sgg_C
-List mfrs_sgg_C(int node_count, List invadj_list, LogicalVector node_composition, int input_node, int output_node, bool silent);
-RcppExport SEXP _rmfr_mfrs_sgg_C(SEXP node_countSEXP, SEXP invadj_listSEXP, SEXP node_compositionSEXP, SEXP input_nodeSEXP, SEXP output_nodeSEXP, SEXP silentSEXP) {
+List mfrs_sgg_C(int node_count, List invadj_list, LogicalVector node_composition, int input_node, int output_node, IntegerVector source_nodes, bool silent);
+RcppExport SEXP _rmfr_mfrs_sgg_C(SEXP node_countSEXP, SEXP invadj_listSEXP, SEXP node_compositionSEXP, SEXP input_nodeSEXP, SEXP output_nodeSEXP, SEXP source_nodesSEXP, SEXP silentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -32,15 +32,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< LogicalVector >::type node_composition(node_compositionSEXP);
     Rcpp::traits::input_parameter< int >::type input_node(input_nodeSEXP);
     Rcpp::traits::input_parameter< int >::type output_node(output_nodeSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type source_nodes(source_nodesSEXP);
     Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
-    rcpp_result_gen = Rcpp::wrap(mfrs_sgg_C(node_count, invadj_list, node_composition, input_node, output_node, silent));
+    rcpp_result_gen = Rcpp::wrap(mfrs_sgg_C(node_count, invadj_list, node_composition, input_node, output_node, source_nodes, silent));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rmfr_mfrs_dfs_C", (DL_FUNC) &_rmfr_mfrs_dfs_C, 6},
-    {"_rmfr_mfrs_sgg_C", (DL_FUNC) &_rmfr_mfrs_sgg_C, 6},
+    {"_rmfr_mfrs_sgg_C", (DL_FUNC) &_rmfr_mfrs_sgg_C, 7},
     {NULL, NULL, 0}
 };
 

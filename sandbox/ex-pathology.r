@@ -1,5 +1,3 @@
-devtools::load_all()
-
 par(mfrow = c(1, 2))
 # construct example graph with two inputs
 g <- graph(c(1,3,2,3), directed = TRUE) %>%
@@ -36,6 +34,15 @@ get_mfrs(h_, input = "A", output = "O", algorithm = "dfs")
 get_mfrs(g_, expand = TRUE, input = "A", output = "O", algorithm = "sgg")
 get_mfrs(h_, input = "A", output = "O", algorithm = "sgg")
 
+get_mfrs(g, expand = TRUE, input = "A", output = "O", algorithm = "sggR")
+get_mfrs(h, input = "A", output = "O", algorithm = "sggR")
+get_mfrs(g, expand = TRUE, input = c("A", "B"), output = "O", algorithm = "sggR")
+get_mfrs(h, input = c("A", "B"), output = "O", algorithm = "sggR")
+
+get_mfrs(g_, expand = TRUE, input = "A", output = "O", algorithm = "sggR")
+get_mfrs(h_, input = "A", output = "O", algorithm = "sggR")
+get_mfrs(g_, expand = TRUE, input = c("A", "B"), output = "O", algorithm = "sggR")
+get_mfrs(h_, input = c("A", "B"), output = "O", algorithm = "sggR")
 
 g <- graph(c(1,3,2,3), directed = TRUE) %>%
   set_vertex_attr("name", value = c("A", "B", "O")) %>%

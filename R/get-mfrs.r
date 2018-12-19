@@ -62,6 +62,15 @@ get_mfrs <- function(
   }
   mfrs_fun <- get(paste0("mfrs_", algorithm))
 
+  # check that input and output nodes have in-degree and out-degree zero
+  if (any(degree(graph, input, "in") > 0)) {
+    stop("`input` node must have out-degree zero.")
+  }
+  if (any(degree(graph, output, "out") > 0)) {
+    stop("`output` node must have out-degree zero.")
+  }
+
+  # calculate MFRs using the specified algorithm
   mfrs <- mfrs_fun(graph, input, output, silent)
 
   # check and correction for C++ implementations
@@ -97,6 +106,7 @@ get_mfrs <- function(
 
 get_minimal_functional_routes <- get_mfrs
 
+# depth-first search algorithm (Algorithm 1)
 mfrs_dfs <- function(graph, input, output, silent) {
   mfrs_dfs_C(
     node_count = vcount(graph),
@@ -108,14 +118,17 @@ mfrs_dfs <- function(graph, input, output, silent) {
   )
 }
 
+# subgraph-growing algorithm (Algorithm 3)
 mfrs_sgg <- function(graph, input, output, silent) {
+  source_nodes <- as.integer(V(graph)[degree(graph, mode = "in") == 0])
   mfrs_sgg_C(
     node_count = vcount(graph),
     invadj_list = lapply(adjacent_vertices(graph, v = V(graph), mode = "in"),
                          function(x) as.numeric(x) - 1),
     node_composition = vertex_attr(graph, "composite"),
-    input_node = as.integer(V(graph)[input]) - 1,
-    output_node = as.integer(V(graph)[output]) - 1,
+    input_node = as.integer(V(graph)[input]) - 1L,
+    output_node = as.integer(V(graph)[output]) - 1L,
+    source_nodes = source_nodes - 1L,
     silent = silent
   )
 }
@@ -124,8 +137,9 @@ mfrs_sgg <- function(graph, input, output, silent) {
 mfrs_sggR <- function(graph, input, output, silent) {
 
   # setup
-  input <- as.numeric(V(graph)[input])
-  output <- as.numeric(V(graph)[output])
+  input <- as.integer(V(graph)[input])
+  output <- as.integer(V(graph)[output])
+  source_nodes <- as.integer(V(graph)[degree(graph, mode = "in") == 0])
   composite_nodes = which(vertex_attr(graph, "composite"))
   if ("name" %in% vertex_attr_names(graph)) {
     graph <- delete_vertex_attr(graph, "name")
@@ -290,10 +304,15 @@ mfrs_sggR <- function(graph, input, output, silent) {
     print("Final MFRs:")
     for (mfr in mfrs) print(mfr)
   }
-  # require input node
-  mfrs <- mfrs[which(!is.na(sapply(mfrs, function(mfr) {
-    match(input, mfr[[1]])
-  })))]
+  # require that the input node is among the MFR nodes
+  #mfrs <- mfrs[which(!is.na(sapply(mfrs, function(mfr) {
+  #  match(input, mfr[[1]])
+  #})))]
+  # require that all source nodes in each MFR are input nodes
+  source_input <- sapply(mfrs, function(mfr) {
+    all(intersect(source_nodes, mfr[[1]]) %in% input)
+  })
+  mfrs <- mfrs[which(source_input)]
 
   # result as a list of edge sequences
   lapply(mfrs, function(m) {

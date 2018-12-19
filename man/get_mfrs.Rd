@@ -5,7 +5,8 @@
 \title{Recover minimal functional routes}
 \usage{
 get_mfrs(graph, expand = FALSE, input, output, source = NULL,
-  target = NULL, algorithm = NULL, silent = TRUE, format = "sequences")
+  target = NULL, algorithm = NULL, silent = TRUE,
+  format = "sequences")
 }
 \arguments{
 \item{graph}{An object of class \code{"igraph"}.}
