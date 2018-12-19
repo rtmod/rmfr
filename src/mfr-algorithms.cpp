@@ -390,7 +390,7 @@ List mfrs_dfs_C(int node_count,
 List mfrs_sgg_C(int node_count,
                 List invadj_list,
                 LogicalVector node_composition,
-                int input_node, int output_node,
+                IntegerVector input_node, int output_node,
                 IntegerVector source_nodes,
                 bool silent = true) {
 
@@ -557,7 +557,14 @@ List mfrs_sgg_C(int node_count,
             print_innet(cmfr);
           }
 
-          bool is_input = temp2.first == input_node;
+          // check whether `temp2.first` is an input node
+          //bool is_input = temp2.first == input_node;
+          bool is_input = false;
+          for (int j = 0; j < input_node.size(); j++) {
+            if (temp2.first == input_node[j]) {
+              is_input = true;
+            }
+          }
           if ((temp2.second.size() == 0) & !is_input) {
             missing_source = true;
           }
@@ -619,8 +626,10 @@ List mfrs_sgg_C(int node_count,
   for (int i = mfrs.size() - 1; i >= 0; i--) {
     bool has_input = false;
     for (int j = 0; j < mfrs[i].size(); j++) {
-      if (mfrs[i][j].first == input_node) {
-        has_input = true;
+      for (int k = 0; k < input_node.size(); k++) {
+        if (mfrs[i][j].first == input_node[k]) {
+          has_input = true;
+        }
       }
     }
     if (!has_input) {

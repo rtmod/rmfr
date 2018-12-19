@@ -22,7 +22,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // mfrs_sgg_C
-List mfrs_sgg_C(int node_count, List invadj_list, LogicalVector node_composition, int input_node, int output_node, IntegerVector source_nodes, bool silent);
+List mfrs_sgg_C(int node_count, List invadj_list, LogicalVector node_composition, IntegerVector input_node, int output_node, IntegerVector source_nodes, bool silent);
 RcppExport SEXP _rmfr_mfrs_sgg_C(SEXP node_countSEXP, SEXP invadj_listSEXP, SEXP node_compositionSEXP, SEXP input_nodeSEXP, SEXP output_nodeSEXP, SEXP source_nodesSEXP, SEXP silentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -30,7 +30,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type node_count(node_countSEXP);
     Rcpp::traits::input_parameter< List >::type invadj_list(invadj_listSEXP);
     Rcpp::traits::input_parameter< LogicalVector >::type node_composition(node_compositionSEXP);
-    Rcpp::traits::input_parameter< int >::type input_node(input_nodeSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type input_node(input_nodeSEXP);
     Rcpp::traits::input_parameter< int >::type output_node(output_nodeSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type source_nodes(source_nodesSEXP);
     Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
