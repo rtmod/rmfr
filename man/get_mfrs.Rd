@@ -4,7 +4,7 @@
 \alias{get_mfrs}
 \title{Recover minimal functional routes}
 \usage{
-get_mfrs(graph, expand = FALSE, input, output, source = NULL,
+get_mfrs(graph, expand = NULL, input, output, source = NULL,
   target = NULL, algorithm = NULL, silent = TRUE,
   format = "sequences")
 }
@@ -13,7 +13,9 @@ get_mfrs(graph, expand = FALSE, input, output, source = NULL,
 
 \item{expand}{Whether to expand \code{graph} before finding the MFRs and, if
 so, to return the list of MFRs in terms of the node and link IDs of
-\code{graph} rather than of its expanded graph.}
+\code{graph} rather than of its expanded graph. If \code{NULL},
+\code{graph} will be expanded only if it has a \code{'synergy'} link
+attribute.}
 
 \item{input, output}{Nodes of \code{graph}, as \strong{igraph} vertices,
 integer indices, or character names.}

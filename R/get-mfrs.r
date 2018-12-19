@@ -11,7 +11,9 @@
 #' @param graph An object of class \code{"igraph"}.
 #' @param expand Whether to expand \code{graph} before finding the MFRs and, if
 #'   so, to return the list of MFRs in terms of the node and link IDs of
-#'   \code{graph} rather than of its expanded graph.
+#'   \code{graph} rather than of its expanded graph. If \code{NULL},
+#'   \code{graph} will be expanded only if it has a \code{'synergy'} link
+#'   attribute.
 #' @param input,output Nodes of \code{graph}, as \strong{igraph} vertices,
 #'   integer indices, or character names.
 #' @param source,target Deprecated; aliases of \code{input} and \code{output}.
@@ -29,7 +31,7 @@
 #' @seealso expand_graph
 #' @export
 get_mfrs <- function(
-  graph, expand = FALSE,
+  graph, expand = NULL,
   input, output,
   source = NULL, target = NULL,
   algorithm = NULL,
@@ -47,6 +49,14 @@ get_mfrs <- function(
     output <- target
   }
 
+  # if not instructed, decide whether to expand based on link attributes
+  if (is.null(expand)) {
+    expand <- ! is.null(edge_attr(graph, "synergy"))
+    if (expand) warning(
+      "`graph` has a 'synergy' link attribute, so it will be expanded.",
+      immediate. = TRUE
+    )
+  }
   if (expand) {
     graph_orig <- graph
     graph <- expand_graph(graph)
@@ -58,7 +68,18 @@ get_mfrs <- function(
   }
   algorithm <- match.arg(algorithm, c("dfs", "ilp", "sgg", "sggR"))
   if (algorithm == "dfs" & !graph_is_dag) {
-    warning("Depth-first search algorithm 'dfs' is proved only for DAGs.")
+    #warning(
+    #  "Depth-first search algorithm 'dfs' is proved only for DAGs.",
+    #  immediate. = TRUE
+    #)
+    ans <- utils::menu(c("yes", "no"), title = c(
+      "Depth-first search algorithm 'dfs' is proved only for DAGs. ",
+      "Are you sure you want to continue?"
+    ))
+    if (ans == 2) {
+      warning("Avoided running DFS on a non-DAG; returning `NULL`.")
+      return(NULL)
+    }
   }
   mfrs_fun <- get(paste0("mfrs_", algorithm))
 
