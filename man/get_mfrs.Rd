@@ -18,7 +18,7 @@ so, to return the list of MFRs in terms of the node and link IDs of
 attribute.}
 
 \item{input, output}{Nodes of \code{graph}, as \strong{igraph} vertices,
-integer indices, or character names.}
+integer indices, or character names. \code{input} must have in-degree zero.}
 
 \item{source, target}{Deprecated; aliases of \code{input} and \code{output}.}
 

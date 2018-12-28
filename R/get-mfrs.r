@@ -15,7 +15,7 @@
 #'   \code{graph} will be expanded only if it has a \code{'synergy'} link
 #'   attribute.
 #' @param input,output Nodes of \code{graph}, as \strong{igraph} vertices,
-#'   integer indices, or character names.
+#'   integer indices, or character names. \code{input} must have in-degree zero.
 #' @param source,target Deprecated; aliases of \code{input} and \code{output}.
 #' @param algorithm An algorithm from Wang et al (2013) from among the
 #'   following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
@@ -83,12 +83,9 @@ get_mfrs <- function(
   }
   mfrs_fun <- get(paste0("mfrs_", algorithm))
 
-  # check that input and output nodes have in-degree and out-degree zero
+  # check that input node(s) have in-degree zero
   if (any(degree(graph, input, "in") > 0)) {
     stop("`input` node must have out-degree zero.")
-  }
-  if (any(degree(graph, output, "out") > 0)) {
-    stop("`output` node must have out-degree zero.")
   }
 
   # calculate MFRs using the specified algorithm
