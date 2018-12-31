@@ -9,51 +9,66 @@
 
 #' @import igraph
 #' @param graph An object of class \code{"igraph"}.
-#' @param expand Whether to expand \code{graph} before finding the MFRs and, if
-#'   so, to return the list of MFRs in terms of the node and link IDs of
-#'   \code{graph} rather than of its expanded graph. If \code{NULL},
-#'   \code{graph} will be expanded only if it has a \code{'synergy'} link
-#'   attribute.
 #' @param input,output Nodes of \code{graph}, as \strong{igraph} vertices,
 #'   integer indices, or character names. \code{input} must have in-degree zero.
-#' @param source,target Deprecated; aliases of \code{input} and \code{output}.
-#' @param algorithm An algorithm from Wang et al (2013) from among the
+#' @param method An algorithm from Wang et al (2013) from among the
 #'   following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
 #'   (iterative integer linear programming; Algorithm 2), or \code{"sgg"}
 #'   (subgraph-growing; Algorithm 3). \strong{Currently Algorithms 1 and 3 are
 #'   implemented in C++; Algorithm 3 also has an implementation in R, employed
 #'   by passing \code{"sggR"}.}
+#' @param expand Whether to expand \code{graph} before finding the MFRs and, if
+#'   so, to return the list of MFRs in terms of the node and link IDs of
+#'   \code{graph} rather than of its expanded graph. If \code{NULL},
+#'   \code{graph} will be expanded only if it has a \code{'synergy'} link
+#'   attribute.
+#' @param add.source Whether to add to \code{graph} a source node with a link to
+#'   each node passed to \code{input}, and to treat this new node as the input.
+#'   This may simplify output and allows to use the subgraph-growing algorithm
+#'   when some input nodes are not themselves sources. If \code{NULL}, the
+#'   source node will be added only in case the subgraph-growing algorithm is
+#'   called and at least one \code{input} node is not a source.
 #' @param silent Whether to print updates on the progress of the algorithm
 #'   (deprecated).
 #' @param format Whether to return the list of MFRs as \code{"sequences"} of
 #'   link IDs or as \code{"matrices"} of head and tail node IDs.
+#' @param source,target Deprecated; aliases of \code{input} and \code{output}.
+#' @param algorithm Deprecated; alias of \code{method}.
 #' @example inst/examples/ex-get-mfrs.r
 #' @seealso expand_graph
 #' @export
 get_mfrs <- function(
-  graph, expand = NULL,
+  graph,
   input, output,
-  source = NULL, target = NULL,
-  algorithm = NULL,
+  method = NULL,
+  expand = NULL, add.source = NULL,
   silent = TRUE,
-  format = "sequences"
+  format = "sequences",
+  source = NULL, target = NULL, algorithm = NULL
 ) {
   format <- match.arg(format, c("sequences", "matrices"))
 
-  if (!is.null(source) | !is.null(target)) {
+  if (! is.null(source) | ! is.null(target)) {
     warning(
-      "Parameters 'source' and 'target' are deprecated.\n",
-      "Use 'input' and 'output' instead."
+      "Parameters `source` and `target` are deprecated.\n",
+      "Use `input` and `output` instead."
     )
     input <- source
     output <- target
+  }
+  if (! is.null(algorithm)) {
+    warning(
+      "Parameter `algorithm` is deprecated.\n",
+      "Use `method` instead."
+    )
   }
 
   # if not instructed, decide whether to expand based on link attributes
   if (is.null(expand)) {
     expand <- ! is.null(edge_attr(graph, "synergy"))
-    if (expand) warning(
-      "`graph` has a 'synergy' link attribute, so it will be expanded.",
+    if (expand && ! is.null(vertex_attr(graph, "composite"))) warning(
+      "`graph` has both a 'composite' node attribute and",
+      "a 'synergy' link attribute; it will be expanded.",
       immediate. = TRUE
     )
   }
@@ -63,11 +78,11 @@ get_mfrs <- function(
   }
 
   graph_is_dag <- is_dag(graph)
-  if (is.null(algorithm)) {
-    algorithm <- if (graph_is_dag) "dfs" else "sgg"
+  if (is.null(method)) {
+    method <- if (graph_is_dag) "dfs" else "sgg"
   }
-  algorithm <- match.arg(algorithm, c("dfs", "ilp", "sgg", "sggR"))
-  if (algorithm == "dfs" & !graph_is_dag) {
+  method <- match.arg(method, c("dfs", "ilp", "sgg", "sggR"))
+  if (method == "dfs" & ! graph_is_dag) {
     #warning(
     #  "Depth-first search algorithm 'dfs' is proved only for DAGs.",
     #  immediate. = TRUE
@@ -81,22 +96,37 @@ get_mfrs <- function(
       return(NULL)
     }
   }
-  mfrs_fun <- get(paste0("mfrs_", algorithm))
+  mfrs_fun <- get(paste0("mfrs_", method))
 
   # check that input node(s) have in-degree zero
-  if (any(degree(graph, input, "in") > 0)) {
-    stop("`input` node must have out-degree zero.")
+  if (method == "sgg" && any(degree(graph, input, "in") > 0)) {
+    if (is.null(add.source)) {
+      add.source <- TRUE
+    } else if (! add.source) {
+      stop(
+        "Subgraph-growing algorithm 'sgg' requires",
+        "`input` node to have out-degree zero."
+      )
+    }
+  } else if (is.null(add.source)) {
+    add.source <- FALSE
+  }
+  if (add.source) {
+    graph <- add_vertices(graph, 1, attr = list(name = "rmfr_input_source"))
+    input_names <- names(V(graph)[input])
+    graph <- add_edges(graph, unlist(rbind("rmfr_input_source", input_names)))
+    input <- "rmfr_input_source"
   }
 
   # calculate MFRs using the specified algorithm
   mfrs <- mfrs_fun(graph, input, output, silent)
 
   # check and correction for C++ implementations
-  if (algorithm == "dfs") {
+  if (method == "dfs") {
     stopifnot(mfrs$mfr_count == length(mfrs$mfr_set))
     mfrs <- mfrs$mfr_set %>%
       lapply(function(x) x + 1)
-  } else if (algorithm == "sgg") {
+  } else if (method == "sgg") {
     stopifnot(mfrs$mfr_count == length(mfrs$mfrs_links))
     mfrs <- mfrs$mfrs_links %>% unname() %>%
       lapply(function(x) x + 1) %>%

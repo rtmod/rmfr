@@ -12,20 +12,20 @@ h_ <- expand_graph(g_)
 test_that("synergy requires both sources", {
   # without synergy
   expect_equal(
-    get_mfrs(g, input = "A", output = "O", algorithm = "dfs"),
+    get_mfrs(g, input = "A", output = "O", method = "dfs"),
     list(1)
   )
   expect_equal(
-    get_mfrs(h, input = "A", output = "O", algorithm = "dfs"),
+    get_mfrs(h, input = "A", output = "O", method = "dfs"),
     list(1)
   )
   # with synergy
   expect_equal(
-    get_mfrs(g_, input = "A", output = "O", algorithm = "dfs"),
+    get_mfrs(g_, input = "A", output = "O", method = "dfs"),
     list()
   )
   expect_equal(
-    get_mfrs(h_, input = "A", output = "O", algorithm = "dfs"),
+    get_mfrs(h_, input = "A", output = "O", method = "dfs"),
     list()
   )
 })
@@ -39,19 +39,19 @@ q_ <- expand_graph(p_)
 
 test_that("non-source inputs incur error", {
   expect_error(
-    get_mfrs(p, input = "A", output = "O", algorithm = "dfs"),
+    get_mfrs(p, input = "A", output = "O", method = "dfs"),
     "input"
   )
   expect_error(
-    get_mfrs(q, input = "A", output = "O", algorithm = "dfs"),
+    get_mfrs(q, input = "A", output = "O", method = "dfs"),
     "input"
   )
   expect_error(
-    get_mfrs(p_, input = "A", output = "O", algorithm = "dfs"),
+    get_mfrs(p_, input = "A", output = "O", method = "dfs"),
     "input"
   )
   expect_error(
-    get_mfrs(q_, input = "A", output = "O", algorithm = "dfs"),
+    get_mfrs(q_, input = "A", output = "O", method = "dfs"),
     "input"
   )
 })

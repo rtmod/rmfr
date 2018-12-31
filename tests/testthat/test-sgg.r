@@ -12,29 +12,29 @@ h_ <- expand_graph(g_)
 test_that("synergy requires both sources", {
   # without synergy
   expect_equal(
-    get_mfrs(g, input = "A", output = "O", algorithm = "sgg"),
+    get_mfrs(g, input = "A", output = "O", method = "sgg"),
     list(1)
   )
   expect_equal(
-    get_mfrs(h, input = "A", output = "O", algorithm = "sgg"),
+    get_mfrs(h, input = "A", output = "O", method = "sgg"),
     list(1)
   )
   # with synergy
   expect_equal(
-    get_mfrs(g_, input = "A", output = "O", algorithm = "sgg"),
+    get_mfrs(g_, input = "A", output = "O", method = "sgg"),
     list()
   )
   expect_equal(
-    get_mfrs(h_, input = "A", output = "O", algorithm = "sgg"),
+    get_mfrs(h_, input = "A", output = "O", method = "sgg"),
     list()
   )
   # multiple inputs are allowed
   expect_equal(
-    get_mfrs(g_, input = c("A", "B"), output = "O", algorithm = "sgg"),
+    get_mfrs(g_, input = c("A", "B"), output = "O", method = "sgg"),
     list(1:2)
   )
   expect_equal(
-    get_mfrs(h_, input = c("A", "B"), output = "O", algorithm = "sgg"),
+    get_mfrs(h_, input = c("A", "B"), output = "O", method = "sgg"),
     list(1:3)
   )
 })
@@ -48,19 +48,19 @@ q_ <- expand_graph(p_)
 
 test_that("non-source inputs incur error", {
   expect_error(
-    get_mfrs(p, input = "A", output = "O", algorithm = "sgg"),
+    get_mfrs(p, input = "A", output = "O", method = "sgg"),
     "input"
   )
   expect_error(
-    get_mfrs(q, input = "A", output = "O", algorithm = "sgg"),
+    get_mfrs(q, input = "A", output = "O", method = "sgg"),
     "input"
   )
   expect_error(
-    get_mfrs(p_, input = "A", output = "O", algorithm = "sgg"),
+    get_mfrs(p_, input = "A", output = "O", method = "sgg"),
     "input"
   )
   expect_error(
-    get_mfrs(q_, input = "A", output = "O", algorithm = "sgg"),
+    get_mfrs(q_, input = "A", output = "O", method = "sgg"),
     "input"
   )
 })

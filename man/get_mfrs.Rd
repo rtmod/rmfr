@@ -4,12 +4,22 @@
 \alias{get_mfrs}
 \title{Recover minimal functional routes}
 \usage{
-get_mfrs(graph, expand = NULL, input, output, source = NULL,
-  target = NULL, algorithm = NULL, silent = TRUE,
-  format = "sequences")
+get_mfrs(graph, input, output, method = NULL, expand = NULL,
+  add.source = NULL, silent = TRUE, format = "sequences",
+  source = NULL, target = NULL, algorithm = NULL)
 }
 \arguments{
 \item{graph}{An object of class \code{"igraph"}.}
+
+\item{input, output}{Nodes of \code{graph}, as \strong{igraph} vertices,
+integer indices, or character names. \code{input} must have in-degree zero.}
+
+\item{method}{An algorithm from Wang et al (2013) from among the
+following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
+(iterative integer linear programming; Algorithm 2), or \code{"sgg"}
+(subgraph-growing; Algorithm 3). \strong{Currently Algorithms 1 and 3 are
+implemented in C++; Algorithm 3 also has an implementation in R, employed
+by passing \code{"sggR"}.}}
 
 \item{expand}{Whether to expand \code{graph} before finding the MFRs and, if
 so, to return the list of MFRs in terms of the node and link IDs of
@@ -17,23 +27,22 @@ so, to return the list of MFRs in terms of the node and link IDs of
 \code{graph} will be expanded only if it has a \code{'synergy'} link
 attribute.}
 
-\item{input, output}{Nodes of \code{graph}, as \strong{igraph} vertices,
-integer indices, or character names. \code{input} must have in-degree zero.}
-
-\item{source, target}{Deprecated; aliases of \code{input} and \code{output}.}
-
-\item{algorithm}{An algorithm from Wang et al (2013) from among the
-following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
-(iterative integer linear programming; Algorithm 2), or \code{"sgg"}
-(subgraph-growing; Algorithm 3). \strong{Currently Algorithms 1 and 3 are
-implemented in C++; Algorithm 3 also has an implementation in R, employed
-by passing \code{"sggR"}.}}
+\item{add.source}{Whether to add to \code{graph} a source node with a link to
+each node passed to \code{input}, and to treat this new node as the input.
+This may simplify output and allows to use the subgraph-growing algorithm
+when some input nodes are not themselves sources. If \code{NULL}, the
+source node will be added only in case the subgraph-growing algorithm is
+called and at least one \code{input} node is not a source.}
 
 \item{silent}{Whether to print updates on the progress of the algorithm
 (deprecated).}
 
 \item{format}{Whether to return the list of MFRs as \code{"sequences"} of
 link IDs or as \code{"matrices"} of head and tail node IDs.}
+
+\item{source, target}{Deprecated; aliases of \code{input} and \code{output}.}
+
+\item{algorithm}{Deprecated; alias of \code{method}.}
 }
 \description{
 This function takes a graph \code{graph} (by default assumed to be expanded)
