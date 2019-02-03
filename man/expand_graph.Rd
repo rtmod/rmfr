@@ -12,8 +12,8 @@ contract_graph(graph, composite = NULL)
 \arguments{
 \item{graph}{An object of class \code{"igraph"}.}
 
-\item{synergy}{Either a character string indicating the attribute of 
-\code{graph} that encodes link synergy or a list of vectors of dependent 
+\item{synergy}{Either a character string indicating the attribute of
+\code{graph} that encodes link synergy or a list of vectors of dependent
 link IDs. If \code{NULL}, uses the first available link attribute.}
 
 \item{composite}{Either a character string indicating the attribute of
@@ -21,20 +21,20 @@ link IDs. If \code{NULL}, uses the first available link attribute.}
 IDs. If \code{NULL}, uses the first available node attribute.}
 }
 \description{
-The function \code{expand_graph()} takes as input an \strong{igraph} object 
-and information on \emph{link synergy} (either as a link attribute or as a 
-separate list of link subsets) and returns the \emph{expanded graph} as an 
-\strong{igraph} object with a logical node attribute \code{"composite"} 
+The function \code{expand_graph()} takes as input an \strong{igraph} object
+and information on \emph{link synergy} (either as a link attribute or as a
+separate list of link subsets) and returns the \emph{expanded graph} as an
+\strong{igraph} object with a logical node attribute \code{"composite"}
 indicating which nodes are composite nodes.
 }
 \details{
 The function \code{contract_graph()} takes as input an \strong{igraph} object
-and information on \emph{node composition} (either as a node attribute or as a 
-separate vector of node IDs) and returns the \emph{contracted graph} as an 
-\strong{igraph} object with a logical link attribute \code{"synergy"} 
+and information on \emph{node composition} (either as a node attribute or as a
+separate vector of node IDs) and returns the \emph{contracted graph} as an
+\strong{igraph} object with a logical link attribute \code{"synergy"}
 indicating which subsets of links are synergistic.
 
-Only composite nodes are added or deleted, so node IDs are preserved. 
+Only composite nodes are added or deleted, so node IDs are preserved.
 However, link IDs are not.
 }
 \examples{

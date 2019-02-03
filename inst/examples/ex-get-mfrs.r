@@ -58,20 +58,20 @@ plot(
 # subgraph-growing algorithm: toy examples
 graph <- graph(c( 1,3, 2,3 ))
 graph <- set_vertex_attr(graph, "composite", value = FALSE)
-get_mfrs(graph, input = 1, output = 3, algorithm = "sgg", silent = FALSE)
-get_mfrs(graph, input = 1, output = 3, algorithm = "sggR", silent = FALSE)
+get_mfrs(graph, input = 1, output = 3, method = "sgg", silent = FALSE)
+get_mfrs(graph, input = 1, output = 3, method = "sggR", silent = FALSE)
 
 graph <- graph(c( 1,2, 2,3, 1,3, 3,4 ))
 plot(graph, edge.label = E(graph))
 graph <- set_vertex_attr(graph, "composite", value = FALSE)
-get_mfrs(graph, input = 1, output = 4, algorithm = "sgg", silent = TRUE)
-get_mfrs(graph, input = 1, output = 4, algorithm = "sggR", silent = TRUE)
+get_mfrs(graph, input = 1, output = 4, method = "sgg", silent = TRUE)
+get_mfrs(graph, input = 1, output = 4, method = "sggR", silent = TRUE)
 
 graph <- graph(c( 1,2, 1,3, 2,4, 3,4, 4,5, 3,6, 6,5 ))
 plot(graph, edge.label = E(graph))
 graph <- set_vertex_attr(graph, "composite", value = as.logical(c(0,0,0,1,0,0)))
-get_mfrs(graph, input = 1, output = 5, algorithm = "sgg")
-get_mfrs(graph, input = 1, output = 5, algorithm = "sggR")
+get_mfrs(graph, input = 1, output = 5, method = "sgg")
+get_mfrs(graph, input = 1, output = 5, method = "sggR")
 
 # subgraph-growing algorithm: acyclic example
 acyclic_expansion <- expand_graph(example_acyclic)
@@ -79,9 +79,9 @@ plot(acyclic_expansion,
      layout = layout_as_tree,
      vertex.color = ifelse(V(acyclic_expansion)$composite, "gray", "white"),
      edge.label = E(acyclic_expansion))
-get_mfrs(acyclic_expansion, input = "I", output = "O", algorithm = "dfs")
-get_mfrs(acyclic_expansion, input = "I", output = "O", algorithm = "sgg")
-get_mfrs(acyclic_expansion, input = "I", output = "O", algorithm = "sggR")
+get_mfrs(acyclic_expansion, input = "I", output = "O", method = "dfs")
+get_mfrs(acyclic_expansion, input = "I", output = "O", method = "sgg")
+get_mfrs(acyclic_expansion, input = "I", output = "O", method = "sggR")
 
 # subgraph-growing algorithm: cyclic example
 cyclic_expansion <- expand_graph(example_cyclic)
@@ -89,17 +89,17 @@ plot(cyclic_expansion,
      layout = layout_with_fr,
      vertex.color = ifelse(V(cyclic_expansion)$composite, "gray", "white"),
      edge.label = E(cyclic_expansion))
-get_mfrs(cyclic_expansion, input = "s", output = "t", algorithm = "sgg")
-get_mfrs(cyclic_expansion, input = "s", output = "t", algorithm = "sggR")
+get_mfrs(cyclic_expansion, input = "s", output = "t", method = "sgg")
+get_mfrs(cyclic_expansion, input = "s", output = "t", method = "sggR")
 
 \dontrun{
 rbenchmark::benchmark(
-  get_mfrs(cyclic_expansion, input = "s", output = "t", algorithm = "sgg"),
-  get_mfrs(cyclic_expansion, input = "s", output = "t", algorithm = "sggR")
+  get_mfrs(cyclic_expansion, input = "s", output = "t", method = "sgg"),
+  get_mfrs(cyclic_expansion, input = "s", output = "t", method = "sggR")
 )
 rbenchmark::benchmark(
-  get_mfrs(acyclic_expansion, input = "I", output = "O", algorithm = "dfs"),
-  get_mfrs(acyclic_expansion, input = "I", output = "O", algorithm = "sgg"),
-  get_mfrs(acyclic_expansion, input = "I", output = "O", algorithm = "sggR")
+  get_mfrs(acyclic_expansion, input = "I", output = "O", method = "dfs"),
+  get_mfrs(acyclic_expansion, input = "I", output = "O", method = "sgg"),
+  get_mfrs(acyclic_expansion, input = "I", output = "O", method = "sggR")
 )
 }
