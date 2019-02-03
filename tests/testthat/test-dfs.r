@@ -37,21 +37,37 @@ q <- expand_graph(p)
 p_ <- set_edge_attr(p, "synergy", value = c(1L, 1L, NA_integer_))
 q_ <- expand_graph(p_)
 
-test_that("non-source inputs incur error", {
+test_that("non-source inputs incur error if appropriate", {
   expect_error(
     get_mfrs(p, input = "A", output = "O", method = "dfs"),
-    "input"
+    NA
   )
   expect_error(
     get_mfrs(q, input = "A", output = "O", method = "dfs"),
-    "input"
+    NA
   )
   expect_error(
     get_mfrs(p_, input = "A", output = "O", method = "dfs"),
-    "input"
+    NA
   )
   expect_error(
     get_mfrs(q_, input = "A", output = "O", method = "dfs"),
-    "input"
+    NA
+  )
+  expect_error(
+    get_mfrs(p, input = "A", output = "O", method = "dfs", add.source = FALSE),
+    NA
+  )
+  expect_error(
+    get_mfrs(q, input = "A", output = "O", method = "dfs", add.source = FALSE),
+    NA
+  )
+  expect_error(
+    get_mfrs(p_, input = "A", output = "O", method = "dfs", add.source = FALSE),
+    NA
+  )
+  expect_error(
+    get_mfrs(q_, input = "A", output = "O", method = "dfs", add.source = FALSE),
+    NA
   )
 })
