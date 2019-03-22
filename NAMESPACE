@@ -3,6 +3,8 @@
 export(contract_graph)
 export(expand_graph)
 export(get_mfrs)
+export(get_minimal_functional_routes)
+export(get_minimal_paths)
 import(igraph)
 importFrom(Rcpp,sourceCpp)
 useDynLib(rmfr)

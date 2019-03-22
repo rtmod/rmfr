@@ -1,7 +1,11 @@
 Package: rmfr
 Title: Calculate Minimal Functional Routes through Expanded Graphs
 Version: 0.0.0.9000
-Authors@R: person("Jason Cory", "Brunson", email = "jabrunso@vt.edu", role = c("aut", "cre"))
+Authors@R:
+    person(given = "Jason Cory",
+           family = "Brunson",
+           email = "cornelioid@gmail.com",
+           role = c("aut", "cre"))
 Description: What the package does (one paragraph).
 Depends:
     R (>= 3.3.0),

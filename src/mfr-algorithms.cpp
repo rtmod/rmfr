@@ -384,8 +384,7 @@ List mfrs_dfs_C(int node_count,
 // Algorithm 2 (Wang et al, 2013)
 
 // Algorithm 3 (Wang et al, 2013)
-// A subgraph-growing algorithm for enumerating MFRs in DAGs
-// Note: throughout, all index sets begin at 0
+// A subgraph-growing algorithm for enumerating MFRs in directed graphs
 // [[Rcpp::export]]
 List mfrs_sgg_C(int node_count,
                 List invadj_list,

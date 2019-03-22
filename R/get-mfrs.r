@@ -7,6 +7,7 @@
 #' @template Wang2013
 #'
 
+#' @name mfrs
 #' @import igraph
 #' @param graph An object of class \code{"igraph"}.
 #' @param input,output Nodes of \code{graph}, as \strong{igraph} vertices,
@@ -32,10 +33,12 @@
 #'   (deprecated).
 #' @param format Whether to return the list of MFRs as \code{"sequences"} of
 #'   link IDs or as \code{"matrices"} of head and tail node IDs.
-#' @param source,target Deprecated; aliases of \code{input} and \code{output}.
-#' @param algorithm Deprecated; alias of \code{method}.
-#' @example inst/examples/ex-get-mfrs.r
+#' @example inst/examples/ex-mfrs.r
+#' @example inst/examples/ex-minimal-paths.r
 #' @seealso expand_graph
+NULL
+
+#' @rdname mfrs
 #' @export
 get_mfrs <- function(
   graph,
@@ -43,25 +46,9 @@ get_mfrs <- function(
   method = NULL,
   expand = NULL, add.source = NULL,
   silent = TRUE,
-  format = "sequences",
-  source = NULL, target = NULL, algorithm = NULL
+  format = "sequences"
 ) {
   format <- match.arg(format, c("sequences", "matrices"))
-  
-  if (! is.null(source) | ! is.null(target)) {
-    warning(
-      "Parameters `source` and `target` are deprecated.\n",
-      "Use `input` and `output` instead."
-    )
-    input <- source
-    output <- target
-  }
-  if (! is.null(algorithm)) {
-    warning(
-      "Parameter `algorithm` is deprecated.\n",
-      "Use `method` instead."
-    )
-  }
   
   # if not instructed, decide whether to expand based on link attributes
   if (is.null(expand)) {
@@ -159,7 +146,27 @@ get_mfrs <- function(
   mfrs
 }
 
+#' @rdname mfrs
+#' @export
 get_minimal_functional_routes <- get_mfrs
+
+#' @rdname mfrs
+#' @export
+get_minimal_paths <- function(
+  graph,
+  input, output,
+  method = NULL,
+  add.source = NULL,
+  silent = TRUE,
+  format = "sequences"
+) {
+  graph <- set_edge_attr(graph, "synergy", value = NA)
+  graph <- set_vertex_attr(graph, "composite", value = FALSE)
+  get_mfrs(
+    graph = graph, input = input, output = output, method = method,
+    expand = FALSE, add.source = add.source, silent = silent, format = format
+  )
+}
 
 # depth-first search algorithm (Algorithm 1)
 mfrs_dfs <- function(graph, input, output, silent) {
