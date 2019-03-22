@@ -1,4 +1,4 @@
-#' \strong{rmfr}: calculate minimal functional routes through expanded graphs
+#' **rmfr**: calculate minimal functional routes through expanded graphs
 #' 
 #' Description.
 #' 

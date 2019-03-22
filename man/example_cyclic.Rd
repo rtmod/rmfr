@@ -3,12 +3,12 @@
 \name{example_cyclic}
 \alias{example_cyclic}
 \title{Cyclic example}
-\format{Directed graph of class \code{"igraph"} with link dependencies 
-  encoded in the \code{"synergy"} link attribute.}
+\format{Directed \link[igraph:igraph]{igraph::igraph} object with link dependencies encoded in
+the \code{"synergy"} link attribute.}
 \source{
 Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional routes in
-  directed graphs with dependent edges. \emph{Intl. Trans. in Op. Res.}, 20, 
-  391--409.
+directed graphs with dependent edges. \emph{Intl. Trans. in Op. Res.}, 20,
+391--409.
 }
 \description{
 This toy example, a directed graph with cycles, was used by Wang et al (2013)

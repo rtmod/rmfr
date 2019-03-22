@@ -1,38 +1,39 @@
-#' Recover minimal functional routes
+#' @title Recover minimal functional routes
 #'
-#' This function takes a graph \code{graph} (by default assumed to be expanded)
-#' with designated \code{input} and \code{output} nodes and finds the minimal
-#' functional routes (MFRs) from \code{input} to \code{output}.
+#' @description The function `get_mfrs()` takes a graph `graph` (by default
+#'   assumed to be expanded) with designated `input` and `output` nodes and
+#'   finds the minimal functional routes (MFRs) from `input` to `output`.
+#'   `get_minimal_functional_routes()` is an alias. The function
+#'   `get_minimal_paths` trivializes the functional annotation of a graph and
+#'   uses `get_mfrs()` to find minimal paths.
 #'
-#' @template Wang2013
-#'
+#' @template ref-wang2013
+#'   
 
 #' @name mfrs
 #' @import igraph
-#' @param graph An object of class \code{"igraph"}.
-#' @param input,output Nodes of \code{graph}, as \strong{igraph} vertices,
-#'   integer indices, or character names. \code{input} must have in-degree zero.
-#' @param method An algorithm from Wang et al (2013) from among the
-#'   following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
-#'   (iterative integer linear programming; Algorithm 2), or \code{"sgg"}
-#'   (subgraph-growing; Algorithm 3). \strong{Currently Algorithms 1 and 3 are
-#'   implemented in C++; Algorithm 3 also has an implementation in R, employed
-#'   by passing \code{"sggR"}.}
-#' @param expand Whether to expand \code{graph} before finding the MFRs and, if
-#'   so, to return the list of MFRs in terms of the node and link IDs of
-#'   \code{graph} rather than of its expanded graph. If \code{NULL},
-#'   \code{graph} will be expanded only if it has a \code{'synergy'} link
-#'   attribute.
-#' @param add.source Whether to add to \code{graph} a source node with a link to
-#'   each node passed to \code{input}, and to treat this new node as the input.
-#'   This may simplify output and allows to use the subgraph-growing algorithm
-#'   when some input nodes are not themselves sources. If \code{NULL}, the
-#'   source node will be added only in case the subgraph-growing algorithm is
-#'   called and at least one \code{input} node is not a source.
+#' @param graph An [igraph::igraph] object.
+#' @param input,output Vector of nodes of `graph`, as class `"igraph.vs"`,
+#'   integer indices, or character names. `input` must have in-degree zero.
+#' @param method An algorithm from Wang et al (2013) from among the following:
+#'   `"dfs"` (depth-first search; Algorithm 1), `"ilp"` (iterative integer
+#'   linear programming; Algorithm 2), or `"sgg"` (subgraph-growing; Algorithm
+#'   3). **Currently Algorithms 1 and 3 are implemented in C++; Algorithm 3 also
+#'   has an implementation in R, employed by passing `"sggR"`.**
+#' @param expand Whether to expand `graph` before finding the MFRs and, if so,
+#'   to return the list of MFRs in terms of the node and link IDs of `graph`
+#'   rather than of its expanded graph. If `NULL`, `graph` will be expanded only
+#'   if it has a `"synergy"` link attribute.
+#' @param add.source Whether to add to `graph` a source node with a link to each
+#'   node passed to `input`, and to treat this new node as the input. This may
+#'   simplify output and allows to use the subgraph-growing algorithm when some
+#'   input nodes are not themselves sources. If `NULL`, the source node will be
+#'   added only in case the subgraph-growing algorithm is called and at least
+#'   one `input` node is not a source.
 #' @param silent Whether to print updates on the progress of the algorithm
 #'   (deprecated).
-#' @param format Whether to return the list of MFRs as \code{"sequences"} of
-#'   link IDs or as \code{"matrices"} of head and tail node IDs.
+#' @param format Whether to return the list of MFRs as `"sequences"` of link IDs
+#'   or as `"matrices"` of head and tail node IDs.
 #' @example inst/examples/ex-mfrs.r
 #' @example inst/examples/ex-minimal-paths.r
 #' @seealso expand_graph

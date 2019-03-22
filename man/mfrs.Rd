@@ -18,41 +18,42 @@ get_minimal_paths(graph, input, output, method = NULL,
   add.source = NULL, silent = TRUE, format = "sequences")
 }
 \arguments{
-\item{graph}{An object of class \code{"igraph"}.}
+\item{graph}{An \link[igraph:igraph]{igraph::igraph} object.}
 
-\item{input, output}{Nodes of \code{graph}, as \strong{igraph} vertices,
+\item{input, output}{Vector of nodes of \code{graph}, as class \code{"igraph.vs"},
 integer indices, or character names. \code{input} must have in-degree zero.}
 
-\item{method}{An algorithm from Wang et al (2013) from among the
-following: \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"}
-(iterative integer linear programming; Algorithm 2), or \code{"sgg"}
-(subgraph-growing; Algorithm 3). \strong{Currently Algorithms 1 and 3 are
-implemented in C++; Algorithm 3 also has an implementation in R, employed
-by passing \code{"sggR"}.}}
+\item{method}{An algorithm from Wang et al (2013) from among the following:
+\code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"} (iterative integer
+linear programming; Algorithm 2), or \code{"sgg"} (subgraph-growing; Algorithm
+3). \strong{Currently Algorithms 1 and 3 are implemented in C++; Algorithm 3 also
+has an implementation in R, employed by passing \code{"sggR"}.}}
 
-\item{expand}{Whether to expand \code{graph} before finding the MFRs and, if
-so, to return the list of MFRs in terms of the node and link IDs of
-\code{graph} rather than of its expanded graph. If \code{NULL},
-\code{graph} will be expanded only if it has a \code{'synergy'} link
-attribute.}
+\item{expand}{Whether to expand \code{graph} before finding the MFRs and, if so,
+to return the list of MFRs in terms of the node and link IDs of \code{graph}
+rather than of its expanded graph. If \code{NULL}, \code{graph} will be expanded only
+if it has a \code{"synergy"} link attribute.}
 
-\item{add.source}{Whether to add to \code{graph} a source node with a link to
-each node passed to \code{input}, and to treat this new node as the input.
-This may simplify output and allows to use the subgraph-growing algorithm
-when some input nodes are not themselves sources. If \code{NULL}, the
-source node will be added only in case the subgraph-growing algorithm is
-called and at least one \code{input} node is not a source.}
+\item{add.source}{Whether to add to \code{graph} a source node with a link to each
+node passed to \code{input}, and to treat this new node as the input. This may
+simplify output and allows to use the subgraph-growing algorithm when some
+input nodes are not themselves sources. If \code{NULL}, the source node will be
+added only in case the subgraph-growing algorithm is called and at least
+one \code{input} node is not a source.}
 
 \item{silent}{Whether to print updates on the progress of the algorithm
 (deprecated).}
 
-\item{format}{Whether to return the list of MFRs as \code{"sequences"} of
-link IDs or as \code{"matrices"} of head and tail node IDs.}
+\item{format}{Whether to return the list of MFRs as \code{"sequences"} of link IDs
+or as \code{"matrices"} of head and tail node IDs.}
 }
 \description{
-This function takes a graph \code{graph} (by default assumed to be expanded)
-with designated \code{input} and \code{output} nodes and finds the minimal
-functional routes (MFRs) from \code{input} to \code{output}.
+The function \code{get_mfrs()} takes a graph \code{graph} (by default
+assumed to be expanded) with designated \code{input} and \code{output} nodes and
+finds the minimal functional routes (MFRs) from \code{input} to \code{output}.
+\code{get_minimal_functional_routes()} is an alias. The function
+\code{get_minimal_paths} trivializes the functional annotation of a graph and
+uses \code{get_mfrs()} to find minimal paths.
 }
 \examples{
 # MFRs for acyclic example (constructs expanded graph internally)
@@ -175,8 +176,8 @@ get_minimal_functional_routes(g, input = "s", output = "t")
 get_minimal_paths(g, input = "s", output = "t")
 }
 \references{
-Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional routes in 
-directed graphs with dependent links. \emph{Intl. Trans. in Op. Res.}, 20, 
+Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional routes in
+directed graphs with dependent links. \emph{Intl. Trans. in Op. Res.}, 20,
 391--409.
 }
 \seealso{
