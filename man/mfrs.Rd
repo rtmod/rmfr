@@ -7,21 +7,21 @@
 \alias{get_minimal_paths}
 \title{Recover minimal functional routes}
 \usage{
-get_mfrs(graph, input, output, method = NULL, expand = NULL,
+get_mfrs(graph, source, target, method = NULL, expand = NULL,
   add.source = NULL, silent = TRUE, format = "sequences")
 
-get_minimal_functional_routes(graph, input, output, method = NULL,
+get_minimal_functional_routes(graph, source, target, method = NULL,
   expand = NULL, add.source = NULL, silent = TRUE,
   format = "sequences")
 
-get_minimal_paths(graph, input, output, method = NULL,
+get_minimal_paths(graph, source, target, method = NULL,
   add.source = NULL, silent = TRUE, format = "sequences")
 }
 \arguments{
 \item{graph}{An \link[igraph:igraph]{igraph::igraph} object.}
 
-\item{input, output}{Vector of nodes of \code{graph}, as class \code{"igraph.vs"},
-integer indices, or character names. \code{input} must have in-degree zero.}
+\item{source, target}{Vector of nodes of \code{graph}, as class \code{"igraph.vs"},
+integer indices, or character names. \code{source} must have in-degree zero.}
 
 \item{method}{An algorithm from Wang et al (2013) from among the following:
 \code{"dfs"} (depth-first search; Algorithm 1), \code{"ilp"} (iterative integer
@@ -35,11 +35,11 @@ rather than of its expanded graph. If \code{NULL}, \code{graph} will be expanded
 if it has a \code{"synergy"} link attribute.}
 
 \item{add.source}{Whether to add to \code{graph} a source node with a link to each
-node passed to \code{input}, and to treat this new node as the input. This may
-simplify output and allows to use the subgraph-growing algorithm when some
-input nodes are not themselves sources. If \code{NULL}, the source node will be
+node passed to \code{source}, and to treat this new node as the source. This may
+simplify target and allows to use the subgraph-growing algorithm when some
+source nodes are not themselves sources. If \code{NULL}, the source node will be
 added only in case the subgraph-growing algorithm is called and at least
-one \code{input} node is not a source.}
+one \code{source} node is not a source.}
 
 \item{silent}{Whether to print updates on the progress of the algorithm
 (deprecated).}
@@ -49,8 +49,8 @@ or as \code{"matrices"} of head and tail node IDs.}
 }
 \description{
 The function \code{get_mfrs()} takes a graph \code{graph} (by default
-assumed to be expanded) with designated \code{input} and \code{output} nodes and
-finds the minimal functional routes (MFRs) from \code{input} to \code{output}.
+assumed to be expanded) with designated \code{source} and \code{target} nodes and
+finds the minimal functional routes (MFRs) from \code{source} to \code{target}.
 \code{get_minimal_functional_routes()} is an alias. The function
 \code{get_minimal_paths} trivializes the functional annotation of a graph and
 uses \code{get_mfrs()} to find minimal paths.
@@ -58,7 +58,7 @@ uses \code{get_mfrs()} to find minimal paths.
 \examples{
 # MFRs for acyclic example (constructs expanded graph internally)
 g <- example_acyclic
-g_mfrs <- get_mfrs(g, expand = TRUE, input = "I", output = "O")
+g_mfrs <- get_mfrs(g, expand = TRUE, source = "I", target = "O")
 par(mfrow = c(2, 3))
 for (i in seq_along(g_mfrs)) {
   g <- set_edge_attr(g, "MFR",
@@ -72,7 +72,7 @@ for (i in seq_along(g_mfrs)) {
 par(mfrow = c(1, 1))
 # MFRs for its expanded graph directly
 h <- expand_graph(g)
-h_mfrs <- get_mfrs(h, input = 1, output = 10)
+h_mfrs <- get_mfrs(h, source = 1, target = 10)
 par(mfrow = c(2, 3))
 for (i in seq_along(h_mfrs)) {
   h <- set_edge_attr(h, "MFR",
@@ -101,7 +101,7 @@ par(mfrow = c(1, 1))
 # color duplicated link
 g <- example_acyclic
 h <- expand_graph(g)
-mfrs <- get_mfrs(h, input = 1, output = 10)
+mfrs <- get_mfrs(h, source = 1, target = 10)
 h <- set_edge_attr(h, "MFR", value = sapply(
   as.numeric(E(h)),
   function(i) length(which(mfrs[[3]] == i))
@@ -116,20 +116,20 @@ plot(
 # subgraph-growing algorithm: toy examples
 graph <- graph(c( 1,3, 2,3 ))
 graph <- set_vertex_attr(graph, "composite", value = FALSE)
-get_mfrs(graph, input = 1, output = 3, method = "sgg", silent = FALSE)
-get_mfrs(graph, input = 1, output = 3, method = "sggR", silent = FALSE)
+get_mfrs(graph, source = 1, target = 3, method = "sgg", silent = FALSE)
+get_mfrs(graph, source = 1, target = 3, method = "sggR", silent = FALSE)
 
 graph <- graph(c( 1,2, 2,3, 1,3, 3,4 ))
 plot(graph, edge.label = E(graph))
 graph <- set_vertex_attr(graph, "composite", value = FALSE)
-get_mfrs(graph, input = 1, output = 4, method = "sgg", silent = TRUE)
-get_mfrs(graph, input = 1, output = 4, method = "sggR", silent = TRUE)
+get_mfrs(graph, source = 1, target = 4, method = "sgg", silent = TRUE)
+get_mfrs(graph, source = 1, target = 4, method = "sggR", silent = TRUE)
 
 graph <- graph(c( 1,2, 1,3, 2,4, 3,4, 4,5, 3,6, 6,5 ))
 plot(graph, edge.label = E(graph))
 graph <- set_vertex_attr(graph, "composite", value = as.logical(c(0,0,0,1,0,0)))
-get_mfrs(graph, input = 1, output = 5, method = "sgg")
-get_mfrs(graph, input = 1, output = 5, method = "sggR")
+get_mfrs(graph, source = 1, target = 5, method = "sgg")
+get_mfrs(graph, source = 1, target = 5, method = "sggR")
 
 # subgraph-growing algorithm: acyclic example
 acyclic_expansion <- expand_graph(example_acyclic)
@@ -137,9 +137,9 @@ plot(acyclic_expansion,
      layout = layout_as_tree,
      vertex.color = ifelse(V(acyclic_expansion)$composite, "gray", "white"),
      edge.label = E(acyclic_expansion))
-get_mfrs(acyclic_expansion, input = "I", output = "O", method = "dfs")
-get_mfrs(acyclic_expansion, input = "I", output = "O", method = "sgg")
-get_mfrs(acyclic_expansion, input = "I", output = "O", method = "sggR")
+get_mfrs(acyclic_expansion, source = "I", target = "O", method = "dfs")
+get_mfrs(acyclic_expansion, source = "I", target = "O", method = "sgg")
+get_mfrs(acyclic_expansion, source = "I", target = "O", method = "sggR")
 
 # subgraph-growing algorithm: cyclic example
 cyclic_expansion <- expand_graph(example_cyclic)
@@ -147,18 +147,18 @@ plot(cyclic_expansion,
      layout = layout_with_fr,
      vertex.color = ifelse(V(cyclic_expansion)$composite, "gray", "white"),
      edge.label = E(cyclic_expansion))
-get_mfrs(cyclic_expansion, input = "s", output = "t", method = "sgg")
-get_mfrs(cyclic_expansion, input = "s", output = "t", method = "sggR")
+get_mfrs(cyclic_expansion, source = "s", target = "t", method = "sgg")
+get_mfrs(cyclic_expansion, source = "s", target = "t", method = "sggR")
 
 \dontrun{
 rbenchmark::benchmark(
-  get_mfrs(cyclic_expansion, input = "s", output = "t", method = "sgg"),
-  get_mfrs(cyclic_expansion, input = "s", output = "t", method = "sggR")
+  get_mfrs(cyclic_expansion, source = "s", target = "t", method = "sgg"),
+  get_mfrs(cyclic_expansion, source = "s", target = "t", method = "sggR")
 )
 rbenchmark::benchmark(
-  get_mfrs(acyclic_expansion, input = "I", output = "O", method = "dfs"),
-  get_mfrs(acyclic_expansion, input = "I", output = "O", method = "sgg"),
-  get_mfrs(acyclic_expansion, input = "I", output = "O", method = "sggR")
+  get_mfrs(acyclic_expansion, source = "I", target = "O", method = "dfs"),
+  get_mfrs(acyclic_expansion, source = "I", target = "O", method = "sgg"),
+  get_mfrs(acyclic_expansion, source = "I", target = "O", method = "sggR")
 )
 }
 # use MFR functionality to enumerate minimal paths
@@ -166,14 +166,14 @@ rbenchmark::benchmark(
 # acyclic example
 g <- example_acyclic
 plot(g, edge.label = 1:ecount(g))
-get_minimal_functional_routes(g, input = "I", output = "O")
-get_minimal_paths(g, input = "I", output = "O")
+get_minimal_functional_routes(g, source = "I", target = "O")
+get_minimal_paths(g, source = "I", target = "O")
 
 # cyclic example
 g <- example_cyclic
 plot(g, edge.label = 1:ecount(g))
-get_minimal_functional_routes(g, input = "s", output = "t")
-get_minimal_paths(g, input = "s", output = "t")
+get_minimal_functional_routes(g, source = "s", target = "t")
+get_minimal_paths(g, source = "s", target = "t")
 }
 \references{
 Wang, R.-S., Sun, Z. & Albert, R. (2013) Minimal functional routes in

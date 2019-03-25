@@ -12,19 +12,19 @@ example_cyclic_err <- set_vertex_attr(
 test_that(
   "graph w/ 'synergy' link attr. is expanded w/ warning w/ 'composite' node attr.", {
     expect_warning(
-      get_mfrs(example_acyclic, input = "I", output = "O"),
+      get_mfrs(example_acyclic, source = "I", target = "O"),
       NA
     )
     expect_warning(
-      get_mfrs(example_cyclic, input = "s", output = "t"),
+      get_mfrs(example_cyclic, source = "s", target = "t"),
       NA
     )
     expect_warning(
-      get_mfrs(example_acyclic_err, input = "I", output = "O"),
+      get_mfrs(example_acyclic_err, source = "I", target = "O"),
       "synergy.*expand"
     )
     expect_warning(
-      get_mfrs(example_cyclic_err, input = "s", output = "t"),
+      get_mfrs(example_cyclic_err, source = "s", target = "t"),
       "synergy.*expand"
     )
   }

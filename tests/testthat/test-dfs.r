@@ -12,20 +12,20 @@ h_ <- expand_graph(g_)
 test_that("synergy requires both sources", {
   # without synergy
   expect_equal(
-    get_mfrs(g, input = "A", output = "O", method = "dfs"),
+    get_mfrs(g, source = "A", target = "O", method = "dfs"),
     list(1)
   )
   expect_equal(
-    get_mfrs(h, input = "A", output = "O", method = "dfs"),
+    get_mfrs(h, source = "A", target = "O", method = "dfs"),
     list(1)
   )
   # with synergy
   expect_equal(
-    get_mfrs(g_, input = "A", output = "O", method = "dfs"),
+    get_mfrs(g_, source = "A", target = "O", method = "dfs"),
     list()
   )
   expect_equal(
-    get_mfrs(h_, input = "A", output = "O", method = "dfs"),
+    get_mfrs(h_, source = "A", target = "O", method = "dfs"),
     list()
   )
 })
@@ -37,37 +37,37 @@ q <- expand_graph(p)
 p_ <- set_edge_attr(p, "synergy", value = c(1L, 1L, NA_integer_))
 q_ <- expand_graph(p_)
 
-test_that("non-source inputs incur error if appropriate", {
+test_that("sources with positive in-degree incur error if appropriate", {
   expect_error(
-    get_mfrs(p, input = "A", output = "O", method = "dfs"),
+    get_mfrs(p, source = "A", target = "O", method = "dfs"),
     NA
   )
   expect_error(
-    get_mfrs(q, input = "A", output = "O", method = "dfs"),
+    get_mfrs(q, source = "A", target = "O", method = "dfs"),
     NA
   )
   expect_error(
-    get_mfrs(p_, input = "A", output = "O", method = "dfs"),
+    get_mfrs(p_, source = "A", target = "O", method = "dfs"),
     NA
   )
   expect_error(
-    get_mfrs(q_, input = "A", output = "O", method = "dfs"),
+    get_mfrs(q_, source = "A", target = "O", method = "dfs"),
     NA
   )
   expect_error(
-    get_mfrs(p, input = "A", output = "O", method = "dfs", add.source = FALSE),
+    get_mfrs(p, source = "A", target = "O", method = "dfs", add.source = FALSE),
     NA
   )
   expect_error(
-    get_mfrs(q, input = "A", output = "O", method = "dfs", add.source = FALSE),
+    get_mfrs(q, source = "A", target = "O", method = "dfs", add.source = FALSE),
     NA
   )
   expect_error(
-    get_mfrs(p_, input = "A", output = "O", method = "dfs", add.source = FALSE),
+    get_mfrs(p_, source = "A", target = "O", method = "dfs", add.source = FALSE),
     NA
   )
   expect_error(
-    get_mfrs(q_, input = "A", output = "O", method = "dfs", add.source = FALSE),
+    get_mfrs(q_, source = "A", target = "O", method = "dfs", add.source = FALSE),
     NA
   )
 })

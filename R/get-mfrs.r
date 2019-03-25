@@ -1,8 +1,8 @@
 #' @title Recover minimal functional routes
 #'
 #' @description The function `get_mfrs()` takes a graph `graph` (by default
-#'   assumed to be expanded) with designated `input` and `output` nodes and
-#'   finds the minimal functional routes (MFRs) from `input` to `output`.
+#'   assumed to be expanded) with designated `source` and `target` nodes and
+#'   finds the minimal functional routes (MFRs) from `source` to `target`.
 #'   `get_minimal_functional_routes()` is an alias. The function
 #'   `get_minimal_paths` trivializes the functional annotation of a graph and
 #'   uses `get_mfrs()` to find minimal paths.
@@ -13,8 +13,8 @@
 #' @name mfrs
 #' @import igraph
 #' @param graph An [igraph::igraph] object.
-#' @param input,output Vector of nodes of `graph`, as class `"igraph.vs"`,
-#'   integer indices, or character names. `input` must have in-degree zero.
+#' @param source,target Vector of nodes of `graph`, as class `"igraph.vs"`,
+#'   integer indices, or character names. `source` must have in-degree zero.
 #' @param method An algorithm from Wang et al (2013) from among the following:
 #'   `"dfs"` (depth-first search; Algorithm 1), `"ilp"` (iterative integer
 #'   linear programming; Algorithm 2), or `"sgg"` (subgraph-growing; Algorithm
@@ -25,11 +25,11 @@
 #'   rather than of its expanded graph. If `NULL`, `graph` will be expanded only
 #'   if it has a `"synergy"` link attribute.
 #' @param add.source Whether to add to `graph` a source node with a link to each
-#'   node passed to `input`, and to treat this new node as the input. This may
-#'   simplify output and allows to use the subgraph-growing algorithm when some
-#'   input nodes are not themselves sources. If `NULL`, the source node will be
+#'   node passed to `source`, and to treat this new node as the source. This may
+#'   simplify target and allows to use the subgraph-growing algorithm when some
+#'   source nodes are not themselves sources. If `NULL`, the source node will be
 #'   added only in case the subgraph-growing algorithm is called and at least
-#'   one `input` node is not a source.
+#'   one `source` node is not a source.
 #' @param silent Whether to print updates on the progress of the algorithm
 #'   (deprecated).
 #' @param format Whether to return the list of MFRs as `"sequences"` of link IDs
@@ -43,7 +43,7 @@ NULL
 #' @export
 get_mfrs <- function(
   graph,
-  input, output,
+  source, target,
   method = NULL,
   expand = NULL, add.source = NULL,
   silent = TRUE,
@@ -86,28 +86,28 @@ get_mfrs <- function(
   }
   mfrs_fun <- get(paste0("mfrs_", method))
   
-  # check that input node(s) have in-degree zero
-  if (method == "sgg" && any(degree(graph, input, "in") > 0)) {
+  # check that source node(s) have in-degree zero
+  if (method == "sgg" && any(degree(graph, source, "in") > 0)) {
     if (is.null(add.source)) {
       add.source <- TRUE
     } else if (! add.source) {
       stop(
         "Subgraph-growing algorithm 'sgg' requires",
-        "`input` node to have out-degree zero."
+        "`source` node to have out-degree zero."
       )
     }
   } else if (is.null(add.source)) {
     add.source <- FALSE
   }
   if (add.source) {
-    graph <- add_vertices(graph, 1, attr = list(name = "rmfr_input_source"))
-    input_names <- names(V(graph)[input])
-    graph <- add_edges(graph, unlist(rbind("rmfr_input_source", input_names)))
-    input <- "rmfr_input_source"
+    graph <- add_vertices(graph, 1, attr = list(name = "rmfr_source"))
+    source_names <- names(V(graph)[source])
+    graph <- add_edges(graph, unlist(rbind("rmfr_source", source_names)))
+    source <- "rmfr_source"
   }
   
   # calculate MFRs using the specified algorithm
-  mfrs <- mfrs_fun(graph, input, output, silent)
+  mfrs <- mfrs_fun(graph, source, target, silent)
   
   # check and correction for C++ implementations
   if (method == "dfs") {
@@ -126,7 +126,7 @@ get_mfrs <- function(
   if (add.source) {
     mfrs <- lapply(
       mfrs,
-      function(mfr) mfr[mfr <= ecount(graph) - length(input_names)]
+      function(mfr) mfr[mfr <= ecount(graph) - length(source_names)]
     )
   }
   if (expand) {
@@ -155,7 +155,7 @@ get_minimal_functional_routes <- get_mfrs
 #' @export
 get_minimal_paths <- function(
   graph,
-  input, output,
+  source, target,
   method = NULL,
   add.source = NULL,
   silent = TRUE,
@@ -164,44 +164,42 @@ get_minimal_paths <- function(
   graph <- set_edge_attr(graph, "synergy", value = NA)
   graph <- set_vertex_attr(graph, "composite", value = FALSE)
   get_mfrs(
-    graph = graph, input = input, output = output, method = method,
+    graph = graph, source = source, target = target, method = method,
     expand = FALSE, add.source = add.source, silent = silent, format = format
   )
 }
 
 # depth-first search algorithm (Algorithm 1)
-mfrs_dfs <- function(graph, input, output, silent) {
+mfrs_dfs <- function(graph, source, target, silent) {
   mfrs_dfs_C(
     node_count = vcount(graph),
     link_array = as_edgelist(graph, names = FALSE),
     composite_nodes = which(vertex_attr(graph, "composite")),
-    input_node = as.integer(V(graph)[input]),
-    output_node = as.integer(V(graph)[output]),
+    source_node = as.integer(V(graph)[source]),
+    target_node = as.integer(V(graph)[target]),
     silent = silent
   )
 }
 
 # subgraph-growing algorithm (Algorithm 3)
-mfrs_sgg <- function(graph, input, output, silent) {
-  source_nodes <- as.integer(V(graph)[degree(graph, mode = "in") == 0])
+mfrs_sgg <- function(graph, source, target, silent) {
   mfrs_sgg_C(
     node_count = vcount(graph),
     invadj_list = lapply(adjacent_vertices(graph, v = V(graph), mode = "in"),
                          function(x) as.numeric(x) - 1),
     node_composition = vertex_attr(graph, "composite"),
-    input_node = as.integer(V(graph)[input]) - 1L,
-    output_node = as.integer(V(graph)[output]) - 1L,
-    source_nodes = source_nodes - 1L,
+    source_node = as.integer(V(graph)[source]) - 1L,
+    target_node = as.integer(V(graph)[target]) - 1L,
     silent = silent
   )
 }
 
 # rough implementation in R, to be later implemented in C++
-mfrs_sggR <- function(graph, input, output, silent) {
+mfrs_sggR <- function(graph, source, target, silent) {
   
   # setup
-  input <- as.integer(V(graph)[input])
-  output <- as.integer(V(graph)[output])
+  source <- as.integer(V(graph)[source])
+  target <- as.integer(V(graph)[target])
   source_nodes <- as.integer(V(graph)[degree(graph, mode = "in") == 0])
   composite_nodes = which(vertex_attr(graph, "composite"))
   if ("name" %in% vertex_attr_names(graph)) {
@@ -220,7 +218,7 @@ mfrs_sggR <- function(graph, input, output, silent) {
   pointer <- 1
   n_mfrs <- 1
   flag <- FALSE
-  mfrs <- list(list(net[[1]][output], net[[2]][output]))
+  mfrs <- list(list(net[[1]][target], net[[2]][target]))
   tag <- c(1)
   if (!silent) {
     print("Initial MFRs:")
@@ -367,15 +365,15 @@ mfrs_sggR <- function(graph, input, output, silent) {
     print("Final MFRs:")
     for (mfr in mfrs) print(mfr)
   }
-  # require that the input node is among the MFR nodes
+  # require that the source node is among the MFR nodes
   #mfrs <- mfrs[which(!is.na(sapply(mfrs, function(mfr) {
-  #  match(input, mfr[[1]])
+  #  match(source, mfr[[1]])
   #})))]
-  # require that all source nodes in each MFR are input nodes
-  source_input <- sapply(mfrs, function(mfr) {
-    all(intersect(source_nodes, mfr[[1]]) %in% input)
+  # require that all source nodes in each MFR have in-degree zero
+  source_indeg0 <- sapply(mfrs, function(mfr) {
+    all(intersect(source_nodes, mfr[[1]]) %in% source)
   })
-  mfrs <- mfrs[which(source_input)]
+  mfrs <- mfrs[which(source_indeg0)]
   
   # result as a list of edge sequences
   lapply(mfrs, function(m) {

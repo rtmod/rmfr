@@ -40,7 +40,7 @@ void print_innet(innet xs) {
 List mfrs_dfs_C(int node_count,
                 IntegerMatrix link_array,
                 IntegerVector composite_nodes,
-                int input_node, int output_node,
+                int source_node, int target_node,
                 bool silent = true) {
 
   // setup
@@ -68,7 +68,7 @@ List mfrs_dfs_C(int node_count,
     //route empty_route;
     route_set empty_route_set;
     //empty_route_set.insert(empty_route);
-    if (i + 1 == input_node) {
+    if (i + 1 == source_node) {
       route empty_route;
       empty_route_set.insert(empty_route);
     }
@@ -120,14 +120,14 @@ List mfrs_dfs_C(int node_count,
     ));
   }
 
-  // visiting the input node
+  // visiting the source node
 
-  // set 'input_node' visit count to 1
-  node_visit_count[input_node - 1] = 1;
-  // append to 'link_stack' each link from 'input_node'
+  // set 'source_node' visit count to 1
+  node_visit_count[source_node - 1] = 1;
+  // append to 'link_stack' each link from 'source_node'
   // APPARENTLY THE ORDER REALLY MATTERS
   for (int i = link_array.nrow() - 1; i >= 0; i--) {
-    if (link_array(i, 0) == input_node) {
+    if (link_array(i, 0) == source_node) {
       link_stack.push(i);
     }
   }
@@ -207,7 +207,7 @@ List mfrs_dfs_C(int node_count,
     }
 
     // if 'w' is the sink node...
-    if (w == output_node) {
+    if (w == target_node) {
 
       mfr_count += node_visit_count[u - 1];
       mfr_set.insert(u_pmfrs_e.begin(), u_pmfrs_e.end());
@@ -389,8 +389,7 @@ List mfrs_dfs_C(int node_count,
 List mfrs_sgg_C(int node_count,
                 List invadj_list,
                 LogicalVector node_composition,
-                IntegerVector input_node, int output_node,
-                IntegerVector source_nodes,
+                IntegerVector source_node, int target_node,
                 bool silent = true) {
 
   // setup
@@ -418,13 +417,13 @@ List mfrs_sgg_C(int node_count,
   std::vector<innet> mfrs;
   // node at which to grow current partial MFR
   std::vector<int> tags;
-  // initialize 'mfrs' and 'tags' with empty partial MFR and output node
+  // initialize 'mfrs' and 'tags' with empty partial MFR and target node
 
-  inego to_output;
-  to_output.first = output_node;
-  to_output.second = invadj_list[output_node];
+  inego to_target;
+  to_target.first = target_node;
+  to_target.second = invadj_list[target_node];
   innet mfr;
-  mfr.push_back(to_output);
+  mfr.push_back(to_target);
   mfrs.push_back(mfr);
   if (!silent) {
     Rcout << std::endl << "Initial MFRs:" << std::endl;
@@ -556,15 +555,15 @@ List mfrs_sgg_C(int node_count,
             print_innet(cmfr);
           }
 
-          // check whether `temp2.first` is an input node
-          //bool is_input = temp2.first == input_node;
-          bool is_input = false;
-          for (int j = 0; j < input_node.size(); j++) {
-            if (temp2.first == input_node[j]) {
-              is_input = true;
+          // check whether `temp2.first` is a source node
+          //bool is_source = temp2.first == source_node;
+          bool is_source = false;
+          for (int j = 0; j < source_node.size(); j++) {
+            if (temp2.first == source_node[j]) {
+              is_source = true;
             }
           }
-          if ((temp2.second.size() == 0) & !is_input) {
+          if ((temp2.second.size() == 0) & !is_source) {
             missing_source = true;
           }
 
@@ -621,17 +620,17 @@ List mfrs_sgg_C(int node_count,
     }
   }
 
-  // require input node
+  // require source node
   for (int i = mfrs.size() - 1; i >= 0; i--) {
-    bool has_input = false;
+    bool has_source = false;
     for (int j = 0; j < mfrs[i].size(); j++) {
-      for (int k = 0; k < input_node.size(); k++) {
-        if (mfrs[i][j].first == input_node[k]) {
-          has_input = true;
+      for (int k = 0; k < source_node.size(); k++) {
+        if (mfrs[i][j].first == source_node[k]) {
+          has_source = true;
         }
       }
     }
-    if (!has_input) {
+    if (!has_source) {
       mfrs.erase(mfrs.begin() + i);
       mfr_count--;
     }

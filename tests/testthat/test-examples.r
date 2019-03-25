@@ -8,21 +8,21 @@ sort_mfrs <- function(mfrs) {
 test_that("algorithms agree on acyclic example", {
   expect_equal(
     sort_mfrs(get_mfrs(example_acyclic,
-                       input = "I", output = "O", method = "dfs")),
+                       source = "I", target = "O", method = "dfs")),
     sort_mfrs(get_mfrs(example_acyclic,
-                       input = "I", output = "O", method = "sgg"))
+                       source = "I", target = "O", method = "sgg"))
   )
   expect_equal(
     sort_mfrs(get_mfrs(example_acyclic,
-                       input = "I", output = "O", method = "sgg")),
+                       source = "I", target = "O", method = "sgg")),
     sort_mfrs(get_mfrs(example_acyclic,
-                       input = "I", output = "O", method = "sggR"))
+                       source = "I", target = "O", method = "sggR"))
   )
 })
 
 test_that("default algorithm respects cyclicity", {
   expect_error(
-    get_mfrs(example_cyclic, input = "s", output = "t"),
+    get_mfrs(example_cyclic, source = "s", target = "t"),
     NA
   )
 })

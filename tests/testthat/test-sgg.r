@@ -12,29 +12,29 @@ h_ <- expand_graph(g_)
 test_that("synergy requires both sources", {
   # without synergy
   expect_equal(
-    get_mfrs(g, input = "A", output = "O", method = "sgg"),
+    get_mfrs(g, source = "A", target = "O", method = "sgg"),
     list(1)
   )
   expect_equal(
-    get_mfrs(h, input = "A", output = "O", method = "sgg"),
+    get_mfrs(h, source = "A", target = "O", method = "sgg"),
     list(1)
   )
   # with synergy
   expect_equal(
-    get_mfrs(g_, input = "A", output = "O", method = "sgg"),
+    get_mfrs(g_, source = "A", target = "O", method = "sgg"),
     list()
   )
   expect_equal(
-    get_mfrs(h_, input = "A", output = "O", method = "sgg"),
+    get_mfrs(h_, source = "A", target = "O", method = "sgg"),
     list()
   )
-  # multiple inputs are allowed
+  # multiple sources are allowed
   expect_equal(
-    get_mfrs(g_, input = c("A", "B"), output = "O", method = "sgg"),
+    get_mfrs(g_, source = c("A", "B"), target = "O", method = "sgg"),
     list(1:2)
   )
   expect_equal(
-    get_mfrs(h_, input = c("A", "B"), output = "O", method = "sgg"),
+    get_mfrs(h_, source = c("A", "B"), target = "O", method = "sgg"),
     list(1:3)
   )
 })
@@ -46,37 +46,37 @@ q <- expand_graph(p)
 p_ <- set_edge_attr(p, "synergy", value = c(1L, 1L, NA_integer_))
 q_ <- expand_graph(p_)
 
-test_that("non-source inputs incur error if appropriate", {
+test_that("sources with positive in-degree incur error if appropriate", {
   expect_error(
-    get_mfrs(p, input = "A", output = "O", method = "sgg"),
+    get_mfrs(p, source = "A", target = "O", method = "sgg"),
     NA
   )
   expect_error(
-    get_mfrs(q, input = "A", output = "O", method = "sgg"),
+    get_mfrs(q, source = "A", target = "O", method = "sgg"),
     NA
   )
   expect_error(
-    get_mfrs(p_, input = "A", output = "O", method = "sgg"),
+    get_mfrs(p_, source = "A", target = "O", method = "sgg"),
     NA
   )
   expect_error(
-    get_mfrs(q_, input = "A", output = "O", method = "sgg"),
+    get_mfrs(q_, source = "A", target = "O", method = "sgg"),
     NA
   )
   expect_error(
-    get_mfrs(p, input = "A", output = "O", method = "sgg", add.source = FALSE),
-    "input"
+    get_mfrs(p, source = "A", target = "O", method = "sgg", add.source = FALSE),
+    "source"
   )
   expect_error(
-    get_mfrs(q, input = "A", output = "O", method = "sgg", add.source = FALSE),
-    "input"
+    get_mfrs(q, source = "A", target = "O", method = "sgg", add.source = FALSE),
+    "source"
   )
   expect_error(
-    get_mfrs(p_, input = "A", output = "O", method = "sgg", add.source = FALSE),
-    "input"
+    get_mfrs(p_, source = "A", target = "O", method = "sgg", add.source = FALSE),
+    "source"
   )
   expect_error(
-    get_mfrs(q_, input = "A", output = "O", method = "sgg", add.source = FALSE),
-    "input"
+    get_mfrs(q_, source = "A", target = "O", method = "sgg", add.source = FALSE),
+    "source"
   )
 })
