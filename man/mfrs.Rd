@@ -8,14 +8,14 @@
 \title{Recover minimal functional routes}
 \usage{
 get_mfrs(graph, source, target, method = NULL, expand = NULL,
-  add.source = NULL, silent = TRUE, format = "sequences")
+  add.source = NULL, silent = TRUE, format = "indices")
 
 get_minimal_functional_routes(graph, source, target, method = NULL,
   expand = NULL, add.source = NULL, silent = TRUE,
-  format = "sequences")
+  format = "indices")
 
 get_minimal_paths(graph, source, target, method = NULL,
-  add.source = NULL, silent = TRUE, format = "sequences")
+  add.source = NULL, silent = TRUE, format = "indices")
 }
 \arguments{
 \item{graph}{An \link[igraph:igraph]{igraph::igraph} object.}
@@ -44,8 +44,9 @@ one \code{source} node is not a source.}
 \item{silent}{Whether to print updates on the progress of the algorithm
 (deprecated).}
 
-\item{format}{Whether to return the list of MFRs as \code{"sequences"} of link IDs
-or as \code{"matrices"} of head and tail node IDs.}
+\item{format}{Whether to return the list of MFRs as vectors of edge IDs
+(\code{"indices"}), as edge sequences from \code{graph} (\code{"sequences"}), or as
+matrices of head and tail node IDs (\code{"matrices"}).}
 }
 \description{
 The function \code{get_mfrs()} takes a graph \code{graph} (by default
@@ -101,9 +102,9 @@ par(mfrow = c(1, 1))
 # color duplicated link
 g <- example_acyclic
 h <- expand_graph(g)
-mfrs <- get_mfrs(h, source = 1, target = 10)
+mfrs <- get_mfrs(h, source = 1, target = 10, format = "sequences")
 h <- set_edge_attr(h, "MFR", value = sapply(
-  as.numeric(E(h)),
+  E(h),
   function(i) length(which(mfrs[[3]] == i))
 ))
 plot(
@@ -128,8 +129,8 @@ get_mfrs(graph, source = 1, target = 4, method = "sggR", silent = TRUE)
 graph <- graph(c( 1,2, 1,3, 2,4, 3,4, 4,5, 3,6, 6,5 ))
 plot(graph, edge.label = E(graph))
 graph <- set_vertex_attr(graph, "composite", value = as.logical(c(0,0,0,1,0,0)))
-get_mfrs(graph, source = 1, target = 5, method = "sgg")
-get_mfrs(graph, source = 1, target = 5, method = "sggR")
+get_mfrs(graph, source = 1, target = 5, method = "sgg", format = "matrices")
+get_mfrs(graph, source = 1, target = 5, method = "sggR", format = "matrices")
 
 # subgraph-growing algorithm: acyclic example
 acyclic_expansion <- expand_graph(example_acyclic)
