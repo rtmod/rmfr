@@ -32,8 +32,9 @@
 #'   one `source` node is not a source.
 #' @param silent Whether to print updates on the progress of the algorithm
 #'   (deprecated).
-#' @param format Whether to return the list of MFRs as `"sequences"` of link IDs
-#'   or as `"matrices"` of head and tail node IDs.
+#' @param format Whether to return the list of MFRs as vectors of edge IDs
+#'   (`"indices"`), as edge sequences from `graph` (`"sequences"`), or as
+#'   matrices of head and tail node IDs (`"matrices"`).
 #' @example inst/examples/ex-mfrs.r
 #' @example inst/examples/ex-minimal-paths.r
 #' @seealso expand_graph
@@ -47,9 +48,9 @@ get_mfrs <- function(
   method = NULL,
   expand = NULL, add.source = NULL,
   silent = TRUE,
-  format = "sequences"
+  format = "indices"
 ) {
-  format <- match.arg(format, c("sequences", "matrices"))
+  format <- match.arg(format, c("indices", "sequences", "matrices"))
   
   # if not instructed, decide whether to expand based on link attributes
   if (is.null(expand)) {
@@ -138,13 +139,14 @@ get_mfrs <- function(
   
   # return MFRs in desired format
   if (format == "matrices") {
-    el <- as_edgelist(graph, names = FALSE)
-    mfrs <- lapply(mfrs, function(x) {
-      el[x, , drop = FALSE]
-    })
+    return(lapply(mfrs, get.edges, graph = graph))
+  } else if (format == "sequences") {
+    # no idea why `lapply()` doesn't work here
+    for (i in seq_along(mfrs)) mfrs[[i]] <- E(graph)[mfrs[[i]]]
+    return(mfrs)
+  } else {
+    return(mfrs)
   }
-  
-  mfrs
 }
 
 #' @rdname mfrs
@@ -159,7 +161,7 @@ get_minimal_paths <- function(
   method = NULL,
   add.source = NULL,
   silent = TRUE,
-  format = "sequences"
+  format = "indices"
 ) {
   graph <- set_edge_attr(graph, "synergy", value = NA)
   graph <- set_vertex_attr(graph, "composite", value = FALSE)
