@@ -399,7 +399,11 @@ List mfrs_sgg_C(int node_count,
   for (int v = 0; v < node_count; v++) {
     inego to_v;
     to_v.first = v;
-    to_v.second = invadj_list[v];
+    //to_v.second = invadj_list[v];
+    // error: use of overloaded operator '=' is ambiguous
+    IntegerVector invadj_list_v(invadj_list[v]);
+    for (int i = 0; i < invadj_list_v.size(); i++)
+      to_v.second.push_back(invadj_list_v[i]);
     net.push_back(to_v);
   }
   if (!silent) {
@@ -421,7 +425,11 @@ List mfrs_sgg_C(int node_count,
 
   inego to_target;
   to_target.first = target_node;
-  to_target.second = invadj_list[target_node];
+  //to_target.second = invadj_list[target_node];
+  // error: use of overloaded operator '=' is ambiguous
+  IntegerVector invadj_list_t(invadj_list[target_node]);
+  for (int i = 0; i < invadj_list_t.size(); i++)
+    to_target.second.push_back(invadj_list_t[i]);
   innet mfr;
   mfr.push_back(to_target);
   mfrs.push_back(mfr);
