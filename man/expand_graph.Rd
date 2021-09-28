@@ -10,7 +10,7 @@ expand_graph(graph, synergy = NULL)
 contract_graph(graph, composite = NULL)
 }
 \arguments{
-\item{graph}{An \link[igraph:igraph]{igraph::igraph} object.}
+\item{graph}{An \link[igraph:aaa-igraph-package]{igraph::igraph} object.}
 
 \item{synergy}{Either a character string indicating the attribute of \code{graph}
 that encodes link synergy or a list of vectors of dependent link IDs. If
@@ -25,7 +25,7 @@ These functions transform between graphs with synergistic links
 and "expanded" graphs with composite nodes that represent these synergies.
 }
 \details{
-The function \code{expand_graph()} takes as input an \link[igraph:igraph]{igraph::igraph} object and
+The function \code{expand_graph()} takes as input an \link[igraph:aaa-igraph-package]{igraph::igraph} object and
 information on \emph{link synergy} (either as a link attribute or as a separate
 list of link subsets) and returns the \emph{expanded graph} as an \code{"igraph"}
 object with a logical node attribute \code{"composite"} indicating which nodes are

@@ -7,18 +7,40 @@
 \alias{get_minimal_paths}
 \title{Recover minimal functional routes}
 \usage{
-get_mfrs(graph, source, target, method = NULL, expand = NULL,
-  add.source = NULL, silent = TRUE, format = "indices")
+get_mfrs(
+  graph,
+  source,
+  target,
+  method = NULL,
+  expand = NULL,
+  add.source = NULL,
+  silent = TRUE,
+  format = "indices"
+)
 
-get_minimal_functional_routes(graph, source, target, method = NULL,
-  expand = NULL, add.source = NULL, silent = TRUE,
-  format = "indices")
+get_minimal_functional_routes(
+  graph,
+  source,
+  target,
+  method = NULL,
+  expand = NULL,
+  add.source = NULL,
+  silent = TRUE,
+  format = "indices"
+)
 
-get_minimal_paths(graph, source, target, method = NULL,
-  add.source = NULL, silent = TRUE, format = "indices")
+get_minimal_paths(
+  graph,
+  source,
+  target,
+  method = NULL,
+  add.source = NULL,
+  silent = TRUE,
+  format = "indices"
+)
 }
 \arguments{
-\item{graph}{An \link[igraph:igraph]{igraph::igraph} object.}
+\item{graph}{An \link[igraph:aaa-igraph-package]{igraph::igraph} object.}
 
 \item{source, target}{Vector of nodes of \code{graph}, as class \code{"igraph.vs"},
 integer indices, or character names. \code{source} must have in-degree zero.}

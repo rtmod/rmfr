@@ -3,7 +3,6 @@
 \docType{package}
 \name{rmfr}
 \alias{rmfr}
-\alias{rmfr-package}
 \title{\strong{rmfr}: calculate minimal functional routes through expanded graphs}
 \description{
 Description.
