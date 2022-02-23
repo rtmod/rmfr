@@ -1,0 +1,12 @@
+# R will ignore these files when building the package.
+
+# package background
+^data-raw$
+^man-roxygen$
+
+# experimentation
+^sandbox$
+
+# R project metadata
+^.*\.Rproj$
+^\.Rproj\.user$
